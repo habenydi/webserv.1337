@@ -36,6 +36,11 @@
 *.exe
 *.out
 *.app
+webserv
 
 # debug information files
 *.dwo
+
+# editors files
+.vscode/
+*.swp
