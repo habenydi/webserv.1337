@@ -1,4 +1,4 @@
-SRC = *.cpp
+SRC = main.cpp globale.cpp pars.cpp 
 CXX = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 OBJ = $(SRC:.cpp=.o)

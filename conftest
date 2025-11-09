@@ -1,0 +1,13 @@
+# testing
+server {
+    listen 8080;
+    server_name mysite.com; # testing
+    root /var/www/html;
+    index index.html index.htm;
+    error_page 404 /404.html;
+
+    location /images {
+        root /var/www/images;
+        autoindex on;
+    }
+}
