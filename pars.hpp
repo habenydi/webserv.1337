@@ -6,7 +6,7 @@
 /*   By: yassir <yassir@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/09 09:25:39 by yassir            #+#    #+#             */
-/*   Updated: 2025/11/09 11:17:01 by yassir           ###   ########.fr       */
+/*   Updated: 2025/11/10 09:48:48 by yassir           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,4 +24,6 @@ class pars
 		std::vector<std::string>	Tokenizer(std::string& content);
 		void 	parsing(std::string filename, globale& result);
 		void	ParsTokens(std::vector<std::string>  tokens);
+		void	ParseServerBlock(std::vector <std::string>& token, size_t& index);
+		void	ParseLocationBlock(std::vector<std::string>& token, size_t& index);
 };

@@ -6,7 +6,7 @@
 /*   By: yassir <yassir@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/09 09:27:30 by yassir            #+#    #+#             */
-/*   Updated: 2025/11/09 10:30:39 by yassir           ###   ########.fr       */
+/*   Updated: 2025/11/10 09:39:41 by yassir           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,3 +28,5 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <iostream>
+#include <cstdlib>
