@@ -6,7 +6,7 @@
 /*   By: yassir <yassir@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/09 09:27:49 by yassir            #+#    #+#             */
-/*   Updated: 2025/11/09 10:22:41 by yassir           ###   ########.fr       */
+/*   Updated: 2025/11/12 12:59:43 by yassir           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 
 int	main(int ac, char **av)
 {
+	(void) av;
+	(void) ac;
 	Server server;
 	int port = 8080; // Later: read from config
 	server.run(port);
