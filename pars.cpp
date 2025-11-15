@@ -62,7 +62,6 @@ std::vector<std::string>	pars::Tokenizer(std::string& content)
 void pars::parsing(std::string filename, globale& result)
 {
 	std::string content;
-	(void) result;
 	ReadFromFile(filename, content);
 	std::vector<std::string> Tokens = Tokenizer(content);
 	ParsTokens(Tokens);
