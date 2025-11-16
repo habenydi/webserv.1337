@@ -1,4 +1,4 @@
-SRC = main.cpp globale.cpp pars.cpp 
+SRC = main.cpp globale.cpp pars.cpp httpPars.cpp
 CXX = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 OBJ = $(SRC:.cpp=.o)

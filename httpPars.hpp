@@ -7,24 +7,8 @@ class httpPars
 private:
 	/* data */
 public:
-	httpPars(/* args */);
-	void    RequestPars(int fd, HttpRequest& request)
-	{
-		(void)fd;
-		(void)request;
-	}
-	void    RespansePars(int fd, HttpRequest& request)
-	{
-		(void)fd;
-		(void)request;
-	}
-	~httpPars();
+	bool	RequestPars(int fd, HttpRequest& request);
+	bool	splitHeader(std::string& result, HttpRequest& request);
+	bool	splitBody(std::string& result, HttpRequest& request, int& fd);
+	bool	RespansePars(int fd, HttpRequest& request);
 };
-
-httpPars::httpPars(/* args */)
-{
-}
-
-httpPars::~httpPars()
-{
-}
