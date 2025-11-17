@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   include.hpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: yassir <yassir@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/09 09:27:30 by yassir            #+#    #+#             */
-/*   Updated: 2025/11/10 09:39:41 by yassir           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #pragma once
 
 #include <iostream>
@@ -28,5 +16,10 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <iostream>
 #include <cstdlib>
+#include <csignal>
+#include <netinet/in.h>
+#include <ostream>
+#include <sys/epoll.h>
+#include <sys/socket.h>
+#include <sys/types.h>
