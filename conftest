@@ -1,30 +1,29 @@
 server {
     listen 8080;
-    host 127.0.0.1;
+    server_name localhost;
 
-    server_name myserver;
-
-    root ./www;
+    root /var/www/html;
     index index.html;
-
-    error_page 404 /errors/404.html;
-
     client_max_body_size 1000000;
 
     location / {
-        root ./www;
-        index index.html;
+        root /var/www/html;
         autoindex off;
-        allow_methods GET;
     }
+}
 
-    location /upload {
-        root ./uploads;
-        allow_methods POST GET;
-    }
+server {
+    listen 8081;
+    server_name test.local;
 
-    location /delete {
-        root ./www;
-        allow_methods DELETE;
+    root /var/www/testsite;
+    index home.html;
+    client_max_body_size 500000;
+
+    error_page 404 /notfound.html;
+
+    location /uploads {
+        root /var/www/testsite/uploads;
+        autoindex on;
     }
 }

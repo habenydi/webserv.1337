@@ -1,8 +1,17 @@
 #include "include.hpp"
-#include "pars.hpp"
-#include "globale.hpp"
-#include "httpPars.hpp"
 
+
+int	main(int ac, char **av)
+{
+	(void) av;
+	(void) ac;
+	Server server;
+	int port = 8080; // Later: read from config
+	server.run(port);
+	return 0;
+}
+
+/*
 int set_nonblocking(int fd) {
 	int flags = fcntl(fd, F_GETFL, 0);
 	if (flags == -1) return -1;
@@ -136,3 +145,4 @@ int main(int ac, char **av) {
 	
 	return 0;
 }
+*/

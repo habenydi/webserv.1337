@@ -1,26 +1,29 @@
-SRC = main.cpp globale.cpp pars.cpp httpPars.cpp
-CXX = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98
-OBJ = $(SRC:.cpp=.o)
 
-RM = rm -f
+NAME	 = webserv
+CXX	 = c++
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
-NAME = webserv
+SRCS	 = ./src/main.cpp ./src/pars.cpp ./src/server.cpp 
 
-all : $(NAME)
+OBJS	 = $(SRCS:.cpp=.o)
 
-$(NAME) : $(OBJ)
-	$(CXX) $(CFLAGS) $(OBJ) -o $(NAME)
+all: $(NAME)
 
-%.o : %.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@
+$(NAME): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+	@echo "\033[0;32m✓ $(NAME) compiled successfully!\033[0m"
 
-clean :
-	$(RM) $(OBJ) 
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-fclean : clean
-	$(RM) $(NAME)
+clean:
+	@rm -f $(OBJS)
+	@echo "\033[0;33m✓ Object files cleaned\033[0m"
 
-re : fclean all
+fclean: clean
+	@rm -f $(NAME)
+	@echo "\033[0;33m✓ Executable removed\033[0m"
 
-.PHONY : clean
+re: fclean all
+
+.PHONY: all clean fclean re
