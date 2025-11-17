@@ -1,4 +1,4 @@
-#include "httpPars.hpp"
+#include "../headers/httpPars.hpp"
 
 bool	httpPars::splitHeader(std::string& result, HttpRequest& request)
 {
@@ -75,14 +75,15 @@ bool	httpPars::RequestPars(int fd, HttpRequest& request)
 
 bool	httpPars::splitBody(std::string& result, HttpRequest& request, int& fd)
 {
+	(void)result;
 	std::cout << "\n\n\n in here\n\n";
-	size_t is_chunked = 0, contentlenght = 0;
+	size_t contentlenght = 0;
 	if (request.headers.count("Content-Length"))
 		contentlenght = std::atoi(request.headers["Content-Length"].c_str());
 	if (contentlenght)
 	{
 		char buf[contentlenght];
-		size_t bytes = read(fd, &buf, contentlenght);
+		read(fd, &buf, contentlenght);
 		request.body.append(buf);
 	}
 	return true;
