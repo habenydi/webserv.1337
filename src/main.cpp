@@ -11,9 +11,6 @@
 /* ************************************************************************** */
 
 #include "include.hpp"
-#include "pars.hpp"
-#include "globale.hpp"
-#include "server.hpp"
 
 
 int	main(int ac, char **av)
