@@ -28,7 +28,7 @@ echo -e "${GREEN}=== C++ Makefile Generator ===${NC}\n"
 ##CFLAGS= "-Wall -Wextra -Werror -std=c++98" #${CFLAGS:--Wall -Wextra -Werror -std=c++98}
 
 # Find all .cpp files in current directory
-CPP_FILES=$(find . -maxdepth 1 -name "*.cpp" -type f | sort)
+CPP_FILES=$(find ./src/ -maxdepth 1 -name "*.cpp" -type f | sort)
 
 if [ -z "$CPP_FILES" ]; then
     echo -e "${YELLOW}Warning: No .cpp files found in current directory${NC}"

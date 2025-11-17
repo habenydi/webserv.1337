@@ -1,13 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   globale.cpp                                        :+:      :+:    :+:   */
+/*   include.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yassir <yassir@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/09 11:05:45 by yassir            #+#    #+#             */
-/*   Updated: 2025/11/09 11:06:04 by yassir           ###   ########.fr       */
+/*   Created: 2025/11/09 09:27:30 by yassir            #+#    #+#             */
+/*   Updated: 2025/11/10 09:39:41 by yassir           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "globale.hpp"
+#pragma once
+
+#include "../headers/server.hpp"
+#include "../headers/pars.hpp"
+#include "../headers/globale.hpp"

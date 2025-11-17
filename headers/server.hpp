@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include.hpp"
 #include <string>
+#include "external.hpp"
 
 class	Server
 {
@@ -18,7 +18,5 @@ class	Server
 	// ``` parser object ```
 	public:
 		
-		Server();
-		~Server();
 		void run(int port);
 };

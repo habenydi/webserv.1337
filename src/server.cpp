@@ -1,5 +1,6 @@
 #include "include.hpp"
 #include <csignal>
+#include <fstream>
 #include <iostream>
 #include <netinet/in.h>
 #include <ostream>
@@ -7,13 +8,18 @@
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include "server.hpp"
 
 void	Server::run(int port)
 {
 	if (init_first_sock(port))
 		return;
 	epoll_loop();
+}
+
+std::string to_string98(size_t n) {
+    std::ostringstream oss;
+    oss << n;
+    return oss.str();
 }
 
 int set_nonblocking(int fd) {
@@ -73,10 +79,14 @@ void	Server::_recv(int fd)
 {
 	char		buff[4096]; // 4 kb hhhh
 	std::string	request;
-	ssize_t byts = recv(fd, buff, 1024, 0);
+	ssize_t byts = recv(fd, buff, 4096, 0);
 
 	if (byts > 0)
+	{
 		request += buff;
+		std::cout << "-------------------------------------------------" << std::endl;
+		std::cout << request << std::endl;
+	}
 	else
 		throw byts;
 	// 	parce_http(request);
@@ -85,8 +95,35 @@ void	Server::_recv(int fd)
 void	Server::_send(int fd)
 {
 	std::string	respons;// will come from parser
+
+
+		std::cout << "-=-=================[DEBUG] time to send=================-=-" << std::endl;//
+	std::string	body;//
+	std::string	line;//
 	static size_t		offset;
 
+	std::ifstream	thefile("index.html");//
+	if (!thefile.is_open() || thefile.peek() == -1)//
+	{//
+		std::cout << "the file did not opened or empty\n";//
+		return ;//
+	}//
+	while (std::getline(thefile, line))//
+	{//
+		std::cout << "[DEBUG] kayn" << std::endl;//
+		body.append(line);//
+		body.append("\n");//
+	}//
+	respons = //
+        "HTTP/1.1 200 OK\r\n"//
+        "Content-Type: text/plain\r\n"//
+        "Content-Length: " + to_string98(body.size()) + "\r\n"//
+        "\r\n" +//
+        body;//
+	std::cout << "-------------------------------------------------\n[DEBUG]" << respons << std::endl;//
+													  //
+													  //
+													  //
 	ssize_t byts = send(fd, respons.c_str() + offset, respons.length() - offset, 0);
 	if (byts > 0)
 	{
@@ -101,10 +138,11 @@ void	Server::_send(int fd)
 void	Server::epoll_loop()
 {
 	epfd = epoll_create(1);
-	if (-1 == epfd)
-		std::cerr << "[Error] epoll_create fails" << std::endl;return;
-
-	std::cout << "[DEBUG] sockfd: " << sockfd << std::endl;
+	if (epfd == -1)
+	{
+		std::cerr << "[Error] epoll_create fails" << std::endl;
+		return;
+	}
 
 
 	struct	epoll_event ev;
@@ -129,6 +167,7 @@ void	Server::epoll_loop()
 				{
 					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
 					close(fd);
+					std::cout << "[DEBUG] the connection closed 1" << std::endl;
 					continue;
 				}
 				else if (clients[i].events & EPOLLIN)
@@ -139,6 +178,7 @@ void	Server::epoll_loop()
 					{
 						if (e == "ready")
 						{
+							std::cout << "[DEBUG] ready to send" << std::endl;
 							ev.events = EPOLLOUT | EPOLLRDHUP;
 							epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &ev);
 						}
@@ -146,11 +186,13 @@ void	Server::epoll_loop()
 					{
 						epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
 						close(fd);
+						std::cout << "[DEBUG] the connection closed 2" << std::endl;
 						continue;
 					}
 				}
 				else if (clients[i].events & EPOLLOUT)
 				{
+					std::cout << "[DEBUG] type to send" << std::endl;
 					try{
 						_send(fd);
 					}catch (std::string e)
@@ -161,6 +203,7 @@ void	Server::epoll_loop()
 					{
 						epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
 						close(fd);
+						std::cout << "[DEBUG] the connection closed 3" << std::endl;
 						continue;
 					}
 				}
