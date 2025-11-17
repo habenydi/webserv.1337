@@ -1,13 +1,24 @@
-# testing
 server {
     listen 8080;
-    server_name mysite.com; # testing
-    root /var/www/html;
-    index index.html index.htm;
+    server_name localhost;
+
+    root ./www;
+
     error_page 404 /404.html;
 
-    location /images {
-        root /var/www/images;
+    location / {
+        index index.html;
         autoindex on;
+        allow_methods GET POST DELETE;
+    }
+
+    location /upload {
+        upload_store ./uploads;
+        allow_methods POST;
+    }
+
+    location /cgi-bin {
+        cgi_pass /usr/bin/python3;
+        allow_methods GET POST;
     }
 }

@@ -4,40 +4,58 @@
 
 struct LocationConfig
 {
-    std::string path;
-    std::string root;
-    bool autoindex;
-    std::vector<std::string> allowed_methods;
-    std::string upload_store;
-    std::string cgi_extension;
+	std::string path;
+	std::string root;
+	bool autoindex;
+	std::vector<std::string> allowed_methods;
+	std::string upload_store;
+	std::string cgi_extension;
+	std::vector<std::string> index;
+	std::string cgi_pass;
+
+	// Constructor: initialize all members
+	LocationConfig()
+		: path(), root(), autoindex(false), allowed_methods(),
+		  upload_store(), cgi_extension(), index(), cgi_pass()
+	{
+	}
 };
 
 class globale
 {
-	public:
-		std::vector <std::string>	port;
-		std::string	server_name;
-		std::string path;
-		std::string	root;
-		unsigned long max_client_size;
-		bool autoindex;
-		std::vector<std::string> index;
-		std::map<int, std::string> error_page;
-		std::vector<LocationConfig> location;
-		globale& operator=(const globale& other)
-		{
-			if (this != &other)
-			{
-				this->path = other.path;
-				this->port = other.port;
-				this->root = other.root;
-				this->autoindex = other.autoindex;
-				this->index = other.index;
-				this->error_page = other.error_page;
-				this->location = other.location;
-				// if you add any thing int the private of class you have to add here
-			}
-			return (*this);
-		}
-};
+public:
+	std::vector<std::string> port;
+	std::string server_name;
+	std::string path;
+	std::string root;
+	unsigned long max_client_size;
+	bool autoindex;
+	std::vector<std::string> index;
+	std::map<int, std::string> error_page;
+	std::vector<LocationConfig> location;
 
+	// Constructor: initialize all members
+	globale()
+		: port(), server_name(), path(), root(),
+		  max_client_size(0), autoindex(false), index(),
+		  error_page(), location()
+	{
+	}
+
+	globale &operator=(const globale &other)
+	{
+		if (this != &other)
+		{
+			this->path = other.path;
+			this->port = other.port;
+			this->root = other.root;
+			this->autoindex = other.autoindex;
+			this->index = other.index;
+			this->error_page = other.error_page;
+			this->location = other.location;
+			this->server_name = other.server_name;
+			this->max_client_size = other.max_client_size;
+		}
+		return (*this);
+	}
+};
