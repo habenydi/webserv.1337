@@ -161,6 +161,12 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 				throw std::runtime_error("Error: missing value after 'listen'");
 			data.port.push_back(token[++index]);
 		}
+		else if (token[index] == "host")
+		{
+			if (index + 1 >= token.size())
+				throw std::runtime_error("Error: missing value after 'host'");
+			data.host = token[++index];
+		}
 		else if (token[index] == "root")
 		{
 			if (index + 1 >= token.size())
@@ -203,11 +209,10 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 			data.server_name = token[++index];
 		}
 		else if (token[index] != ";")
-			throw std::runtime_error("Unknow type " + token[index]);
-		index++;
+			throw std::runtime_error("Unknown directive: " + token[index]);
+		
+		++index;
 	}
-	if (index >= token.size() || token[index] != "}")
-		throw std::runtime_error("Error: missing closing '}' for server block");
 }
 
 void pars::ParsTokens(std::vector<std::string> tokens)

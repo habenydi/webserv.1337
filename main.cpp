@@ -17,7 +17,7 @@ int main(int ac, char **av) {
 			throw std::runtime_error("Usage: ./webserv <conf file>");
 		globale data;
 		var.parsing(av[1], data);
-		return (1); // khliha bax ntesty
+		// return (1); // khliha bax ntesty
 		const int PORT = 8080;
 		int server_fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (server_fd == -1) {

@@ -25,6 +25,7 @@ class globale
 {
 public:
 	std::vector<std::string> port;
+	std::string host;
 	std::string server_name;
 	std::string path;
 	std::string root;
@@ -36,7 +37,7 @@ public:
 
 	// Constructor: initialize all members
 	globale()
-		: port(), server_name(), path(), root(),
+		: port(), host(), server_name(), path(), root(),
 		  max_client_size(0), autoindex(false), index(),
 		  error_page(), location()
 	{
@@ -48,6 +49,7 @@ public:
 		{
 			this->path = other.path;
 			this->port = other.port;
+			this->host = other.host;
 			this->root = other.root;
 			this->autoindex = other.autoindex;
 			this->index = other.index;
