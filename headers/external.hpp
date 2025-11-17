@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   include.hpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: yassir <yassir@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/09 09:27:30 by yassir            #+#    #+#             */
-/*   Updated: 2025/11/10 09:39:41 by yassir           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #pragma once
 
 #include <iostream>
@@ -30,3 +18,26 @@
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
+
+#define MAX_REQUEST_SIZE 5362
+
+struct HttpRequest
+{
+	// --- Request Line ---
+	std::string method;   // GET, POST, DELETE
+	std::string path;     // e.g., "/index.html"
+	std::string version;  // HTTP/1.1
+
+	// --- Headers ---
+	std::map<std::string, std::string> headers; // header_name -> header_value
+
+	// --- Body ---
+	std::string body;     // raw body of the request
+
+	// --- Parsed info for convenience (bonus) ---
+	std::string query_string;               // if URL has "?..."
+	std::map<std::string, std::string> cookies; // parsed "Cookie" header
+	std::map<std::string, std::string> form_data; // for application/x-www-form-urlencoded POST
+	std::vector<unsigned char> raw_body;    // if binary upload, store as bytes
+	bool IsPOST;
+};
