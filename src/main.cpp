@@ -1,4 +1,6 @@
 #include "include.hpp"
+
+
 // int	main(int ac, char **av)
 // {
 // 	(void) av;
@@ -15,8 +17,7 @@
 // 	return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 // }
 
-int main(int ac, char **av)
-{
+int main(int ac, char **av) {
 	// try
 	// {
 	// 	pars var;
@@ -62,7 +63,7 @@ int main(int ac, char **av)
 
 	// 	std::cout << "Server listening on port " << PORT << "\n";
 
-	// 	const char* response =
+	// 	const char* response = 
 	// 		"HTTP/1.0 200 OK\r\n"
 	// 		"Content-Type: text/plain\r\n"
 	// 		"Content-Length: 18\r\n"
@@ -125,79 +126,22 @@ int main(int ac, char **av)
 	// {
 	// 	std::cerr << e.what() << std::endl;
 	// 	return (1);
-	//  }	
+	// }
+	//pmg
 	try
-    {
-        (void)ac;
-        (void)av;
-
-        int fd = open("httpReq", O_RDONLY);
-        if (fd < 0)
-            throw std::runtime_error("Failed to open httpReq");
-
-        std::string buffer;
-        HttpRequest request;
-        httpPars http;
-
-        char tmp[1024];
-        int bytes;
-
-        while (true)
-        {
-            bytes = read(fd, tmp, sizeof(tmp));
-            if (bytes < 0)
-                throw std::runtime_error("Read error");
-
-            if (bytes == 0)
-                break; // EOF
-
-            buffer.append(tmp, bytes);
-
-            try
-            {
-                // Try to parse what we currently have
-                if (http.RequestPars(buffer, request))
-                {
-                    std::cout << "✔ Request complete!\n";
-                    break;
-                }
-            }
-            catch (const std::runtime_error& e)
-            {
-                // Incomplete request → keep reading
-                if (std::string(e.what()) == "Incomplete HTTP header" ||
-                    std::string(e.what()) == "Incomplete POST body")
-                {
-                    continue;
-                }
-
-                // Other errors → parsing failed
-                throw;
-            }
-        }
-
-        close(fd);
-
-        // Print result for testing
-        std::cout << "\n\n\n=== Parsed Request ===\n\n\n";
-        std::cout << "Method: " << request.method << "\n";
-        std::cout << "Path: " << request.path << "\n";
-        std::cout << "Version: " << request.version << "\n";
-
-        for (std::map<std::string,std::string>::iterator it = request.headers.begin();
-             it != request.headers.end(); ++it)
-        {
-            std::cout << it->first << ": " << it->second << "\n";
-        }
-
-        if (request.IsPOST)
-            std::cout << "Body: " << request.body << "\n";
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "ERROR: " << e.what() << '\n';
-        return 1;
-    }
-
+	{
+		(void)av;
+		(void)ac;
+		HttpRequest request;
+		int fd = open("httpReq", O_RDONLY);
+		httpPars http;
+		http.RequestPars(fd, request);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		return 1;
+	}
+	
 	return 0;
 }
