@@ -18,6 +18,7 @@
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
+#include "../src/include.hpp"
 
 #define MAX_REQUEST_SIZE 5362
 

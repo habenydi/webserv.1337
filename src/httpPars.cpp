@@ -60,20 +60,16 @@ bool	httpPars::RequestPars(std::string& buffer, HttpRequest& request)
 		return true;
 	if (request.headers.find("Content-Length") == request.headers.end())
 		return true;
-	size_t body_len = std::atol(request.headers["Content-Length"].c_str());
+	size_t body_len = std::atol(request.headers["Content-Length"].c_str()) - 3;
 	size_t body_start = header_end + 4;
-		if (buffer.size() < body_start + body_len)
+	std::cout << "len : " << body_len << "    bufer : " 	<< buffer.size() << "    start: " << body_start << "\n\n";
+	std::cout << " som :" << body_start + body_len << "\n\n";
+ 	if (buffer.size() < body_start + body_len)
 	{
 		throw std::runtime_error("Incomplete POST body");
 	}
 	request.body = buffer.substr(body_start, body_len);
-	return true;
-}
-
-bool	httpPars::splitBody(std::string& result, HttpRequest& request)
-{
-	(void)result;
-	(void) request;
+	creat_and_write(request.body);
 	return true;
 }
 
