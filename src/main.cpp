@@ -1,6 +1,4 @@
 #include "include.hpp"
-
-
 // int	main(int ac, char **av)
 // {
 // 	(void) av;
@@ -17,7 +15,8 @@
 // 	return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 // }
 
-int main(int ac, char **av) {
+int main(int ac, char **av)
+{
 	// try
 	// {
 	// 	pars var;
@@ -63,7 +62,7 @@ int main(int ac, char **av) {
 
 	// 	std::cout << "Server listening on port " << PORT << "\n";
 
-	// 	const char* response = 
+	// 	const char* response =
 	// 		"HTTP/1.0 200 OK\r\n"
 	// 		"Content-Type: text/plain\r\n"
 	// 		"Content-Length: 18\r\n"
@@ -127,20 +126,54 @@ int main(int ac, char **av) {
 	// 	std::cerr << e.what() << std::endl;
 	// 	return (1);
 	// }
+	// try
+	// {
+	// 	(void)av;
+	// 	(void)ac;
+	// 	HttpRequest request;
+	// 	int fd = open("httpReq", O_RDONLY);
+	// 	httpPars http;
+	// 	http.RequestPars(fd, request);
+	// }
+	// catch(const std::exception& e)
+	// {
+	// 	std::cerr << e.what() << '\n';
+	// 	return 1;
+	// }
+
+	// response test
 	try
 	{
-		(void)av;
-		(void)ac;
-		HttpRequest request;
-		int fd = open("httpReq", O_RDONLY);
-		httpPars http;
-		http.RequestPars(fd, request);
+		// Test response parser
+		responsePars respParser;
+		HttpResponse response;
+		std::string responseFile = "response";
+		respParser.parsing(responseFile, response);
+
+		std::cout << "=== Parsed Response ===" << std::endl;
+		std::cout << "Version: " << response.http_version << std::endl;
+		std::cout << "Status Code: " << response.status_code << std::endl;
+		std::cout << "Status Message: " << response.status_message << std::endl;
+		std::cout << "\nHeaders:" << std::endl;
+		for (std::map<std::string, std::string>::iterator it = response.headers.begin();
+			 it != response.headers.end(); ++it)
+		{
+			std::cout << "  " << it->first << ": " << it->second << std::endl;
+		}
+		std::cout << "\nBody:\n"
+				  << response.body << std::endl;
+
+		pars var;
+		if (ac != 2)
+			throw std::runtime_error("Usage: ./webserv <conf file>");
+		globale data;
+		var.parsing(av[1], data);
 	}
-	catch(const std::exception& e)
+	catch (std::exception &e)
 	{
-		std::cerr << e.what() << '\n';
-		return 1;
+		std::cerr << e.what() << std::endl;
+		return (1);
 	}
-	
+
 	return 0;
 }
