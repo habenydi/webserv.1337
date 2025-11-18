@@ -125,55 +125,79 @@ int main(int ac, char **av)
 	// {
 	// 	std::cerr << e.what() << std::endl;
 	// 	return (1);
-	// }
-	// try
-	// {
-	// 	(void)av;
-	// 	(void)ac;
-	// 	HttpRequest request;
-	// 	int fd = open("httpReq", O_RDONLY);
-	// 	httpPars http;
-	// 	http.RequestPars(fd, request);
-	// }
-	// catch(const std::exception& e)
-	// {
-	// 	std::cerr << e.what() << '\n';
-	// 	return 1;
-	// }
-
-	// response test
+	//  }	
 	try
-	{
-		// Test response parser
-		responsePars respParser;
-		HttpResponse response;
-		std::string responseFile = "response";
-		respParser.parsing(responseFile, response);
+    {
+        (void)ac;
+        (void)av;
 
-		std::cout << "=== Parsed Response ===" << std::endl;
-		std::cout << "Version: " << response.http_version << std::endl;
-		std::cout << "Status Code: " << response.status_code << std::endl;
-		std::cout << "Status Message: " << response.status_message << std::endl;
-		std::cout << "\nHeaders:" << std::endl;
-		for (std::map<std::string, std::string>::iterator it = response.headers.begin();
-			 it != response.headers.end(); ++it)
-		{
-			std::cout << "  " << it->first << ": " << it->second << std::endl;
-		}
-		std::cout << "\nBody:\n"
-				  << response.body << std::endl;
+        int fd = open("httpReq", O_RDONLY);
+        if (fd < 0)
+            throw std::runtime_error("Failed to open httpReq");
 
-		pars var;
-		if (ac != 2)
-			throw std::runtime_error("Usage: ./webserv <conf file>");
-		globale data;
-		var.parsing(av[1], data);
-	}
-	catch (std::exception &e)
-	{
-		std::cerr << e.what() << std::endl;
-		return (1);
-	}
+        std::string buffer;
+        HttpRequest request;
+        httpPars http;
+
+        char tmp[1024];
+        int bytes;
+
+        while (true)
+        {
+            bytes = read(fd, tmp, sizeof(tmp));
+            if (bytes < 0)
+                throw std::runtime_error("Read error");
+
+            if (bytes == 0)
+                break; // EOF
+
+            buffer.append(tmp, bytes);
+
+            try
+            {
+                // Try to parse what we currently have
+                if (http.RequestPars(buffer, request))
+                {
+                    std::cout << "✔ Request complete!\n";
+                    break;
+                }
+            }
+            catch (const std::runtime_error& e)
+            {
+                // Incomplete request → keep reading
+                if (std::string(e.what()) == "Incomplete HTTP header" ||
+                    std::string(e.what()) == "Incomplete POST body")
+                {
+                    continue;
+                }
+
+                // Other errors → parsing failed
+                throw;
+            }
+        }
+
+        close(fd);
+
+        // Print result for testing
+        std::cout << "\n\n\n=== Parsed Request ===\n\n\n";
+        std::cout << "Method: " << request.method << "\n";
+        std::cout << "Path: " << request.path << "\n";
+        std::cout << "Version: " << request.version << "\n";
+
+        for (std::map<std::string,std::string>::iterator it = request.headers.begin();
+             it != request.headers.end(); ++it)
+        {
+            std::cout << it->first << ": " << it->second << "\n";
+        }
+
+        if (request.IsPOST)
+            std::cout << "Body: " << request.body << "\n";
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "ERROR: " << e.what() << '\n';
+        return 1;
+    }
 
 	return 0;
 }

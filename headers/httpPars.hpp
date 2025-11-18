@@ -7,8 +7,8 @@ class httpPars
 private:
 	/* data */
 public:
-	bool	RequestPars(int fd, HttpRequest& request);
+	bool	RequestPars(std::string& buffer, HttpRequest& request);
 	bool	splitHeader(std::string& result, HttpRequest& request);
-	bool	splitBody(std::string& result, HttpRequest& request, int& fd);
+	bool	splitBody(std::string& result, HttpRequest& request);
 	bool	RespansePars(int fd, HttpRequest& request);
 };
