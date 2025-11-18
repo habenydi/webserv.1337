@@ -37,12 +37,11 @@ bool	httpPars::splitHeader(std::string& result, HttpRequest& request)
 	for (it = request.headers.begin(); it != request.headers.end(); ++it)
 	{
 		std::cout << '"' << it->first << '"' 
-				<< " <--> "
+				<< " <---> "
 				<< '"' << it->second << '"' 
 				<< std::endl;
 	}
 	return true;
-	
 }
 
 bool	httpPars::RequestPars(std::string& buffer, HttpRequest& request)
@@ -58,24 +57,48 @@ bool	httpPars::RequestPars(std::string& buffer, HttpRequest& request)
 		return false;
 	if (!request.IsPOST)
 		return true;
+	StoreTheBody(request, buffer);
+	creat_and_write(request.body);
+	return true;
+}
+
+void	httpPars::StoreTheBody(HttpRequest& request, std::string& buffer)
+{
+	bool	is_chunked = false;
+	if (request.headers.find("Transfer-Encoding") != request.headers.end())
+	{
+		std::string transfer = request.headers["Transfer-Encoding"];
+		if (transfer == "chunked")
+			is_chunked = true;
+	}
+	if (is_chunked)
+		ChunkedBody(request, buffer);
+	else
+		RegularBody(request, buffer);
+}
+
+void	httpPars::ChunkedBody(HttpRequest& request, std::string& buffer)
+{
+	size_t body_len = buffer.find("0\r\n");
+	if (body_len == std::string::npos)
+	{
+		throw std::runtime_error("Incomplete POST body");
+	}
+	size_t header_end = buffer.find("\r\n\r\n");
+	size_t body_start = header_end + 4;
+	request.body = buffer.substr(body_start, body_len);
+}
+
+void	httpPars::RegularBody(HttpRequest& request, std::string& buffer)
+{
+	size_t header_end = buffer.find("\r\n\r\n");
 	if (request.headers.find("Content-Length") == request.headers.end())
-		return true;
+		return ;
 	size_t body_len = std::atol(request.headers["Content-Length"].c_str()) - 3;
 	size_t body_start = header_end + 4;
-	std::cout << "len : " << body_len << "    bufer : " 	<< buffer.size() << "    start: " << body_start << "\n\n";
-	std::cout << " som :" << body_start + body_len << "\n\n";
  	if (buffer.size() < body_start + body_len)
 	{
 		throw std::runtime_error("Incomplete POST body");
 	}
 	request.body = buffer.substr(body_start, body_len);
-	creat_and_write(request.body);
-	return true;
-}
-
-bool	httpPars::RespansePars(int fd, HttpRequest& request)
-{
-	(void)fd;
-	(void)request;
-	return true;
 }
