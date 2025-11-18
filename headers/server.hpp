@@ -15,6 +15,8 @@ class	Server
 	void	accept_client();
 	void	_recv(int);
 	void	_send(int);
+	void	recvRq(struct epoll_event&, int fd);
+	void	sendRs(struct epoll_event&, int fd);
 	// ``` parser object ```
 	public:
 		
