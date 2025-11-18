@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include "../headers/external.hpp"
 #include "../headers/server.hpp"
 #include "../headers/pars.hpp"
 #include "../headers/globale.hpp"

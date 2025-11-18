@@ -5,7 +5,7 @@ bool	httpPars::splitHeader(std::string& result, HttpRequest& request)
 	if (result.find("\r\n\r\n") == std::string::npos)
 		return false;
 	std::vector <std::string> lines;
-	size_t next , pos;
+	size_t next , pos = 0;
 	while ((next = result.find("\r\n", pos)) != std::string::npos)
 	{
 		lines.push_back(result.substr(pos, next - pos));
@@ -37,61 +37,69 @@ bool	httpPars::splitHeader(std::string& result, HttpRequest& request)
 	for (it = request.headers.begin(); it != request.headers.end(); ++it)
 	{
 		std::cout << '"' << it->first << '"' 
-				<< " <--> "
+				<< " <---> "
 				<< '"' << it->second << '"' 
 				<< std::endl;
 	}
 	return true;
-	
 }
-bool	httpPars::RequestPars(int fd, HttpRequest& request)
+
+bool	httpPars::RequestPars(std::string& buffer, HttpRequest& request)
 {
 	request.IsPOST = false;
-	char buf[1024];
-	int bytes;
-	std::string result;
-	while ((bytes = read(fd, &buf, sizeof(buf))))
+	size_t header_end = buffer.find("\r\n\r\n");
+	if (header_end == std::string::npos)
 	{
-		result.append(buf, bytes);
-		if (result.size() > MAX_REQUEST_SIZE)
-		{
-			// error too large request
-			return false;
-		}
-		if (result.find("\r\n\r\n") != std::string::npos)
-			break ;
+		throw std::runtime_error("Incomplete HTTP header");
 	}
-	if (bytes == -1)
-	{
-		std::cerr << "read\n";
-		return (false);
-	}
-	if (!splitHeader(result, request))
+	std::string header = buffer.substr(0, header_end + 4);
+	if (!splitHeader(buffer, request))
 		return false;
-	if (request.IsPOST)
-		return (splitBody(result, request, fd));
+	if (!request.IsPOST)
+		return true;
+	StoreTheBody(request, buffer);
+	std::string name = "BodyContent";
+	creat_and_write(name, request.body);
 	return true;
 }
 
-bool	httpPars::splitBody(std::string& result, HttpRequest& request, int& fd)
+void	httpPars::StoreTheBody(HttpRequest& request, std::string& buffer)
 {
-	(void)result;
-	std::cout << "\n\n\n in here\n\n";
-	size_t contentlenght = 0;
-	if (request.headers.count("Content-Length"))
-		contentlenght = std::atoi(request.headers["Content-Length"].c_str());
-	if (contentlenght)
+	bool	is_chunked = false;
+	if (request.headers.find("Transfer-Encoding") != request.headers.end())
 	{
-		char buf[contentlenght];
-		read(fd, &buf, contentlenght);
-		request.body.append(buf);
+		std::string transfer = request.headers["Transfer-Encoding"];
+		if (transfer == "chunked")
+			is_chunked = true;
 	}
-	return true;
+	if (is_chunked)
+		ChunkedBody(request, buffer);
+	else
+		RegularBody(request, buffer);
 }
 
-bool	httpPars::RespansePars(int fd, HttpRequest& request)
+void	httpPars::ChunkedBody(HttpRequest& request, std::string& buffer)
 {
-	(void)fd;
-	(void)request;
-	return true;
+	size_t body_len = buffer.find("0\r\n");
+	if (body_len == std::string::npos)
+	{
+		throw std::runtime_error("Incomplete POST body");
+	}
+	size_t header_end = buffer.find("\r\n\r\n");
+	size_t body_start = header_end + 4;
+	request.body = buffer.substr(body_start, body_len);
+}
+
+void	httpPars::RegularBody(HttpRequest& request, std::string& buffer)
+{
+	size_t header_end = buffer.find("\r\n\r\n");
+	if (request.headers.find("Content-Length") == request.headers.end())
+		return ;
+	size_t body_len = std::atol(request.headers["Content-Length"].c_str()) - 3;
+	size_t body_start = header_end + 4;
+ 	if (buffer.size() < body_start + body_len)
+	{
+		throw std::runtime_error("Incomplete POST body");
+	}
+	request.body = buffer.substr(body_start, body_len);
 }

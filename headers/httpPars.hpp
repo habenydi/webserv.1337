@@ -7,8 +7,11 @@ class httpPars
 private:
 	/* data */
 public:
-	bool	RequestPars(int fd, HttpRequest& request);
+	bool	RequestPars(std::string& buffer, HttpRequest& request);
 	bool	splitHeader(std::string& result, HttpRequest& request);
-	bool	splitBody(std::string& result, HttpRequest& request, int& fd);
-	bool	RespansePars(int fd, HttpRequest& request);
+	void	StoreTheBody(HttpRequest& request, std::string& buffer);
+	void	ChunkedBody(HttpRequest& request, std::string& buffer);
+	void	RegularBody(HttpRequest& request, std::string& buffer);
 };
+
+void creat_and_write(std::string& dirname, std::string& content);
