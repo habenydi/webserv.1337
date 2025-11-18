@@ -1,14 +1,5 @@
 #include "include.hpp"
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <ctime>
-#include <string>
-#include <cstdio>
-#include <iostream>
-
 void creat_and_write(std::string& dirname, std::string& content)
 {
 	std::ostringstream oss;

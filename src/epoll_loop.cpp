@@ -49,7 +49,7 @@ void	Server::epoll_loop()
 			client.ev = clients[i];
 			client.fd = clients[i].data.fd;
 
-			if (client.fd == sockfd)
+			if ((int)client.fd == sockfd)
 				accept_client();
 			else
 			{

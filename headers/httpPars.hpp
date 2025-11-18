@@ -13,3 +13,5 @@ public:
 	void	ChunkedBody(HttpRequest& request, std::string& buffer);
 	void	RegularBody(HttpRequest& request, std::string& buffer);
 };
+
+void creat_and_write(std::string& dirname, std::string& content);
