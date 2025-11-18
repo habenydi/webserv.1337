@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: yassir <yassir@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/09 09:27:49 by yassir            #+#    #+#             */
-/*   Updated: 2025/11/12 12:59:43 by yassir           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "include.hpp"
 
 
@@ -38,7 +26,7 @@ int main(int ac, char **av) {
 			throw std::runtime_error("Usage: ./webserv <conf file>");
 		globale data;
 		var.parsing(av[1], data);
-		return (1); // khliha bax ntesty
+		// return (1); // khliha bax ntesty
 		const int PORT = 8080;
 		int server_fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (server_fd == -1) {
@@ -140,6 +128,21 @@ int main(int ac, char **av) {
 		std::cerr << e.what() << std::endl;
 		return (1);
 	}
+	// try
+	// {
+	// 	(void)av;
+	// 	(void)ac;
+	// 	HttpRequest request;
+	// 	int fd = open("httpReq", O_RDONLY);
+	// 	httpPars http;
+	// 	http.RequestPars(fd, request);
+	// }
+	// catch(const std::exception& e)
+	// {
+	// 	std::cerr << e.what() << '\n';
+	// 	return 1;
+	// }
+	
 	return 0;
 }
 */
