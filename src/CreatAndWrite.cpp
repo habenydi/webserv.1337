@@ -9,10 +9,10 @@
 #include <cstdio>
 #include <iostream>
 
-void creat_and_write(	std::string& content)
+void creat_and_write(std::string& dirname, std::string& content)
 {
 	std::ostringstream oss;
-	oss << "DataBase/File_" << std::time(NULL);
+	oss << dirname << "/File_" << std::time(NULL);
 	std::string filename = oss.str();
 	int fd = open(filename.c_str(), O_CREAT | O_WRONLY, 0666);
 	if (fd < 0)
@@ -24,7 +24,6 @@ void creat_and_write(	std::string& content)
 	if (written < 0)
 		std::cerr << "Failed to write to file " << filename << "\n";
 	close(fd);
-	std::cout << "Written " << written << " bytes to " << filename << "\n";
 }
 
 

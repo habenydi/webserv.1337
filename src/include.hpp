@@ -11,4 +11,4 @@
 #include "../headers/httpPars.hpp"
 #include "../headers/responseParse.hpp"
 
-void    creat_and_write(std::string& content);
+void    creat_and_write(std::string& dirname, std::string& content);

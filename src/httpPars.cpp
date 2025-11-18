@@ -58,7 +58,8 @@ bool	httpPars::RequestPars(std::string& buffer, HttpRequest& request)
 	if (!request.IsPOST)
 		return true;
 	StoreTheBody(request, buffer);
-	creat_and_write(request.body);
+	std::string name = "BodyContent";
+	creat_and_write(name, request.body);
 	return true;
 }
 
