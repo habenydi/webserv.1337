@@ -38,32 +38,29 @@ void	Server::recvRq(struct epoll_event& ev, int fd)
 void	Server::epoll_loop()
 {
 	epoll_init(epfd, sockfd);
-	//std::map<int, Client> _Clients;
 	while (true)
 	{
 		struct epoll_event clients[1000];
 		int n = epoll_wait(epfd, clients, 1000, -1);
 		for (int i=0; i < n; i++)
 		{
-			int fd = clients[i].data.fd;
 			Client	client;
 			client.offset = 0;
 			client.ev = clients[i];
 			client.fd = clients[i].data.fd;
-			//_Clients[fd] = client;
 
-			if (fd == sockfd)
+			if (client.fd == sockfd)
 				accept_client();
 			else
 			{
 				if (client.ev.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 				{
-					closeClient(fd);
+					closeClient(client.fd);
 					std::cout << "[DEBUG] the connection closed 1" << std::endl;
 					continue;
 				}
 				else if (clients[i].events & EPOLLIN)
-					recvRq(client.ev, fd);
+					recvRq(client.ev, client.fd);
 				else if (clients[i].events & EPOLLOUT)
 					_send(client);
 			}

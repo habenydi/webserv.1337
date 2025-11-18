@@ -22,8 +22,6 @@ void	Server::_recv(int fd)
 	if (byts > 0)
 	{
 		request += buff;
-		std::cout << "-------------------------------------------------" << std::endl;
-		std::cout << request << std::endl;
 		throw std::string("ready");
 	}
 	else
@@ -34,27 +32,6 @@ void	Server::_recv(int fd)
 void	Server::_send(Client& client)
 {
 	std::string	respons;// will come from parser
-
-
-	std::cout << "-=-=================[DEBUG] time to send=================-=-" << std::endl;//
-	std::string	line;
-	std::ifstream	thefile("index.html");
-	if (!thefile.is_open() || thefile.peek() == -1)
-	{
-		std::cout << "the file did not opened or empty\n";
-		return ;
-	}
-
-	std::string	body((std::istreambuf_iterator<char>(thefile)),std::istreambuf_iterator<char>());
-	respons =
-        "HTTP/1.0 200 OK\r\n"
-        "Content-Type: text/html\r\n"
-        "Content-Length: " + to_string98(body.size()) + "\r\n"
-        "\r\n" +
-        body;
-	std::cout << "[DEBUG]\n" << respons << std::endl;
-
-
 
 	ssize_t byts = send(client.fd, respons.c_str() + client.offset, respons.length() - client.offset, MSG_NOSIGNAL);
 
