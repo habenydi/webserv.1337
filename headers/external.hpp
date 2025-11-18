@@ -16,9 +16,13 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <iostream>
 #include <cstdlib>
-#include "../src/include.hpp"
+#include <csignal>
+#include <netinet/in.h>
+#include <ostream>
+#include <sys/epoll.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 #define MAX_REQUEST_SIZE 5362
 

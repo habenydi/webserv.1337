@@ -1,0 +1,47 @@
+#include "include.hpp"
+
+std::string to_string98(size_t n)
+{
+    std::ostringstream oss;
+    oss << n;
+    return oss.str();
+}
+
+void	Server::closeClient(int fd)
+{
+	epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+	close(fd);
+}
+
+void	Server::_recv(int fd)
+{
+	char		buff[4096]; // 4 kb hhhh
+	std::string	request;
+	ssize_t byts = recv(fd, buff, 4096, 0);
+
+	if (byts > 0)
+	{
+		request += buff;
+		throw std::string("ready");
+	}
+	else
+		throw byts;
+	// 	parce_http(request);
+}
+
+void	Server::_send(Client& client)
+{
+	std::string	respons;// will come from parser
+
+	ssize_t byts = send(client.fd, respons.c_str() + client.offset, respons.length() - client.offset, MSG_NOSIGNAL);
+
+	if (byts <= 0)
+	{
+		closeClient(client.fd);
+		return ;
+	}
+
+	client.offset += byts;
+	if (client.offset >= respons.length())
+		closeClient(client.fd);
+}
