@@ -7,6 +7,12 @@ std::string to_string98(size_t n)
     return oss.str();
 }
 
+void	Server::closeClient(int fd)
+{
+	epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+	close(fd);
+}
+
 void	Server::_recv(int fd)
 {
 	char		buff[4096]; // 4 kb hhhh
@@ -25,43 +31,40 @@ void	Server::_recv(int fd)
 	// 	parce_http(request);
 }
 
-void	Server::_send(int fd)
+void	Server::_send(Client& client)
 {
 	std::string	respons;// will come from parser
-	static size_t		offset;
 
 
 	std::cout << "-=-=================[DEBUG] time to send=================-=-" << std::endl;//
-	std::string	body;
 	std::string	line;
-
 	std::ifstream	thefile("index.html");
 	if (!thefile.is_open() || thefile.peek() == -1)
 	{
 		std::cout << "the file did not opened or empty\n";
 		return ;
 	}
-	while (std::getline(thefile, line))
-	{
-		body.append(line);
-		body.append("\n");
-	}
+
+	std::string	body((std::istreambuf_iterator<char>(thefile)),std::istreambuf_iterator<char>());
 	respons =
         "HTTP/1.0 200 OK\r\n"
         "Content-Type: text/html\r\n"
         "Content-Length: " + to_string98(body.size()) + "\r\n"
         "\r\n" +
         body;
-	std::cout << respons << std::endl;
-	ssize_t byts = send(fd, respons.c_str() + offset, respons.length() - offset, 0);
-	if (byts != -1)
-	{
-		std::cout << "	[DEBUG] test" << std::endl;
-		offset += byts;
-		if (offset >= respons.length())
-			throw std::string("done");
-		std::cout << "	[DEBUG] test2" << std::endl;
-	}else
-		throw byts;
+	std::cout << "[DEBUG]\n" << respons << std::endl;
 
+
+
+	ssize_t byts = send(client.fd, respons.c_str() + client.offset, respons.length() - client.offset, MSG_NOSIGNAL);
+
+	if (byts <= 0)
+	{
+		closeClient(client.fd);
+		return ;
+	}
+
+	client.offset += byts;
+	if (client.offset >= respons.length())
+		closeClient(client.fd);
 }

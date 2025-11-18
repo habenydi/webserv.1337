@@ -1,4 +1,5 @@
 #include "include.hpp"
+#include <map>
 
 void	epoll_init(int& epfd, int sockfd)
 {
@@ -29,55 +30,42 @@ void	Server::recvRq(struct epoll_event& ev, int fd)
 		}
 	}catch (ssize_t e)
 	{
-		epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
-		close(fd);
+		closeClient(fd);
 		std::cout << "[DEBUG] the connection closed 2" << std::endl;
-	}
-}
-
-void	Server::sendRs(struct epoll_event& ev, int fd)
-{
-	std::cout << "[DEBUG] time to send" << std::endl;
-	try{
-		_send(fd);
-	}catch (std::string e)
-	{
-		ev.events = EPOLLIN ;//| EPOLLRDHUP;
-		epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &ev);
-	}catch (ssize_t e)
-	{
-		epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
-		close(fd);
-		std::cout << "[DEBUG] the connection closed 3" << std::endl;
 	}
 }
 
 void	Server::epoll_loop()
 {
 	epoll_init(epfd, sockfd);
+	//std::map<int, Client> _Clients;
 	while (true)
 	{
 		struct epoll_event clients[1000];
 		int n = epoll_wait(epfd, clients, 1000, -1);
-
 		for (int i=0; i < n; i++)
 		{
 			int fd = clients[i].data.fd;
+			Client	client;
+			client.offset = 0;
+			client.ev = clients[i];
+			client.fd = clients[i].data.fd;
+			//_Clients[fd] = client;
+
 			if (fd == sockfd)
 				accept_client();
 			else
 			{
-				if (clients[i].events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+				if (client.ev.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 				{
-					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
-					close(fd);
+					closeClient(fd);
 					std::cout << "[DEBUG] the connection closed 1" << std::endl;
 					continue;
 				}
 				else if (clients[i].events & EPOLLIN)
-					recvRq(clients[i], fd);
+					recvRq(client.ev, fd);
 				else if (clients[i].events & EPOLLOUT)
-					sendRs(clients[i], fd);
+					_send(client);
 			}
 		}
 	}
