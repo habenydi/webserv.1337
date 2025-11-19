@@ -144,7 +144,6 @@ int main(int ac, char **av) {
             throw std::runtime_error("Failed to open httpReq");
 
         std::string buffer;
-        HttpRequest request;
         httpPars http;
 
         char tmp[1024];
@@ -164,7 +163,7 @@ int main(int ac, char **av) {
             try
             {
                 // Try to parse what we currently have
-                if (http.RequestPars(buffer, request))
+                if (http.RequestPars(buffer))
                 {
                     std::cout << "✔ Request complete!\n";
                     break;
@@ -188,17 +187,17 @@ int main(int ac, char **av) {
 
         // Print result for testing
         std::cout << "\n\n\n=== Parsed Request ===\n\n\n";
-        std::cout << "Method: " << request.method << "\n";
-        std::cout << "Path: " << request.path << "\n";
-        std::cout << "Version: " << request.version << "\n";
+        std::cout << "Method: " << http.request.method << "\n";
+        std::cout << "Path: " << http.request.path << "\n";
+        std::cout << "Version: " << http.request.version << "\n";
 
-        for (std::map<std::string,std::string>::iterator it = request.headers.begin();
-             it != request.headers.end(); ++it)
+        for (std::map<std::string,std::string>::iterator it = http.request.headers.begin();
+             it != http.request.headers.end(); ++it)
         {
             std::cout << it->first << ": " << it->second << "\n";
         }
-        if (request.IsPOST)
-            std::cout << "Body: " << request.body << "\n";
+        if (http.request.IsPOST)
+            std::cout << "Body: " << http.request.body << "\n";
 		std::cout << "\n\n=== Response ===\n\n\n" << http.response << std::endl;
     }
     catch (const std::exception& e)
