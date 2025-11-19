@@ -6,11 +6,12 @@
 class pars
 {
 	private:
-		globale data;
+		std::vector<globale> data;
 	public:
+		int	Index;
 		void	ReadFromFile(std::string& filename, std::string& content);
 		std::vector<std::string>	Tokenizer(std::string& content);
-		void 	parsing(std::string filename, globale& result);
+		void 	parsing(std::string filename, std::vector<globale>& result);
 		void	ParsTokens(std::vector<std::string>  tokens);
 		void	ParseServerBlock(std::vector <std::string>& token, size_t& index);
 		void	ParseLocationBlock(std::vector<std::string>& token, size_t& index);

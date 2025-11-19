@@ -24,21 +24,8 @@
 // }
 
 int main(int ac, char **av) {
-	// try
-	// {
-	// 	pars var;
-	// 	if (ac != 2)
-	// 		throw std::runtime_error("Usage: ./webserv <conf file>");
-	// 	globale data;
-	// 	var.parsing(av[1], data);
-	// 	// return (1); // khliha bax ntesty
-	// 	const int PORT = 8080;
-	// 	int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	// 	if (server_fd == -1) {
-	// 		std::cerr << "socket() failed\n";
-	// 		return 1;
-	// 	}
 
+		// return (1); // khliha bax ntesty
 	// 	// Allow reuse of address
 	// 	int opt = 1;
 	// 	setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -136,9 +123,11 @@ int main(int ac, char **av) {
 	// Yassir
 	try
     {
-        (void)ac;
-        (void)av;
-
+		pars var;
+		if (ac != 2)
+			throw std::runtime_error("Usage: ./webserv <conf file>");
+		std::vector<globale> data;
+		var.parsing(av[1], data);
         int fd = open("httpReq", O_RDONLY);
         if (fd < 0)
             throw std::runtime_error("Failed to open httpReq");

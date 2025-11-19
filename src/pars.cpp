@@ -61,9 +61,10 @@ std::vector<std::string> pars::Tokenizer(std::string &content)
 	return (result);
 }
 
-void pars::parsing(std::string filename, globale &result)
+void pars::parsing(std::string filename, std::vector<globale>& result)
 {
 	std::string content;
+	Index = 0;
 	ReadFromFile(filename, content);
 	std::vector<std::string> Tokens = Tokenizer(content);
 	ParsTokens(Tokens);
@@ -147,7 +148,7 @@ void pars::ParseLocationBlock(std::vector<std::string> &token, size_t &index)
 	}
 	if (index >= token.size() || token[index] != "}")
 		throw std::runtime_error("Error: missing closing '}' for location block");
-	data.location.push_back(loc);
+	data[Index].location.push_back(loc);
 }
 
 void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
@@ -159,19 +160,19 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 		{
 			if (index + 1 >= token.size())
 				throw std::runtime_error("Error: missing value after 'listen'");
-			data.port.push_back(token[++index]);
+			data[Index].port.push_back(token[++index]);
 		}
 		else if (token[index] == "host")
 		{
 			if (index + 1 >= token.size())
 				throw std::runtime_error("Error: missing value after 'host'");
-			data.host = token[++index];
+			data[Index].host = token[++index];
 		}
 		else if (token[index] == "root")
 		{
 			if (index + 1 >= token.size())
 				throw std::runtime_error("Error: missing value after 'root'");
-			data.root = token[++index];
+			data[Index].root = token[++index];
 		}
 		else if (token[index] == "index")
 		{
@@ -180,7 +181,7 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 				throw std::runtime_error("Error: missing values after 'index'");
 			while (index < token.size() && token[index] != ";")
 			{
-				data.index.push_back(token[index]);
+				data[Index].index.push_back(token[index]);
 				++index;
 			}
 			if (index >= token.size() || token[index] != ";")
@@ -192,13 +193,13 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 				throw std::runtime_error("Error: invalid error_page directive");
 			int error_code = std::atoi(token[++index].c_str());
 			std::string error_page = token[++index];
-			data.error_page[error_code] = error_page;
+			data[Index].error_page[error_code] = error_page;
 		}
 		else if (token[index] == "client_max_body_size")
 		{
 			if (index + 1 >= token.size())
 				throw std::runtime_error("Error: missing value for client_max_body_size");
-			data.max_client_size = std::atol(token[++index].c_str());
+			data[Index].max_client_size = std::atol(token[++index].c_str());
 		}
 		else if (token[index] == "location")
 			ParseLocationBlock(token, index);
@@ -206,11 +207,10 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 		{
 			if (index + 1 >= token.size())
 				throw std::runtime_error("Error: missing value after 'server_name'");
-			data.server_name = token[++index];
+			data[Index].server_name = token[++index];
 		}
 		else if (token[index] != ";")
 			throw std::runtime_error("Unknown directive: " + token[index]);
-		
 		++index;
 	}
 }
@@ -223,7 +223,9 @@ void pars::ParsTokens(std::vector<std::string> tokens)
 		{
 			if (tokens[++i] != "{")
 				throw std::runtime_error("Expect { after server");
+			data.push_back(globale());	
 			ParseServerBlock(tokens, i);
+			Index++;
 		}
 		else
 			throw std::runtime_error("Unknow Block\n" + tokens[i]);
