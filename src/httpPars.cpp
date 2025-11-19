@@ -60,6 +60,7 @@ bool	httpPars::RequestPars(std::string& buffer, HttpRequest& request)
 	StoreTheBody(request, buffer);
 	std::string name = "BodyContent";
 	creat_and_write(name, request.body);
+	response = generateResponse(request);
 	return true;
 }
 
