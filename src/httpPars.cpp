@@ -22,10 +22,7 @@ bool	httpPars::splitHeader(std::string& result)
     std::istringstream first(lines[0]);
     first >> request.method >> request.path >> request.version;
     
-    if (request.path.empty() || request.method.empty() || request.version.empty())
-    {
-		return false;
-	}
+    if (request.path.empty() || request.method.empty() || request.version.empty()) return false;
 	if (request.version == "HTTP/1.1")
 		request.version = "HTTP/1.0";
     if (request.method == "POST")

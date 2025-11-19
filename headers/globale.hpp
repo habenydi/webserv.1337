@@ -24,7 +24,7 @@ struct LocationConfig
 class globale
 {
 public:
-	std::vector<std::string> port;
+	std::string port;
 	std::string host;
 	std::string server_name;
 	std::string path;

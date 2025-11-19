@@ -159,7 +159,11 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 		{
 			if (index + 1 >= token.size())
 				throw std::runtime_error("Error: missing value after 'listen'");
-			data.port.push_back(token[++index]);
+			size_t pos = 0;
+			if ((pos = token[index + 1].find(":")) != std::string::npos)
+				data.port = token[++index].substr(pos);
+			else
+				data.port = token[++index];
 		}
 		else if (token[index] == "host")
 		{
