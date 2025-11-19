@@ -1,6 +1,6 @@
-#include "include.hpp"
+	#include "include.hpp"
 
-globale config;
+std::vector<globale> config;
 
 int	main(int ac, char **av)
 {
@@ -11,11 +11,15 @@ int	main(int ac, char **av)
 	}
 	pars prs;
 	prs.parsing(av[1], config);
-	Server server[config.port.size()];
-	for (size_t i = 0; i < config.port.size(); i++)
+	for (size_t i = 0; i < config.size(); i++)
+	{
+		std::cout << '"' << config[i].port << "\" ==> " << i << std::endl;
+	}
+	Server server[config.size()];
+	for (size_t i = 0; i < config.size(); i++)
 	{
 		try {
-			server[i].run(std::atoi(config.port.c_str()));
+			server[i].run(std::atoi(config[i].port.c_str()));
 		}catch (std::exception& e)
 		{
 			std::cerr << "[ERROR] " << e.what() << std::endl;

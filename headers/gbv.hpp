@@ -2,5 +2,5 @@
 
 #include "globale.hpp"
 
-extern globale config;
+extern std::vector<globale> config;
 
