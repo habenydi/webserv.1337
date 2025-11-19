@@ -33,7 +33,7 @@ std::string HttpResponse::toString() const
 {
     std::ostringstream response;
 
-    response << "HTTP/1.0 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
+    response << "HTTP/1.1 " << status_code << " " << getReasonPhrase(status_code) << "\r\n"; // Changed from HTTP/1.0 to HTTP/1.1
 
     for (std::map<std::string, std::string>::const_iterator it = headers.begin();
          it != headers.end(); ++it)
@@ -79,7 +79,6 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest &request)
         response.setBody("<html><body><h1>400 Bad Request - Invalid HTTP version</h1></body></html>");
         return response;
     }
-
     if (request.method == "GET")
         return handleGetRequest(request);
     else if (request.method == "POST")

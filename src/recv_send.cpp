@@ -1,4 +1,5 @@
 #include "include.hpp"
+#include <stdexcept>
 
 std::string to_string98(size_t n)
 {
@@ -17,21 +18,20 @@ void	Server::_recv(int fd)
 {
 	char		buff[4096]; // 4 kb hhhh
 	std::string	request;
-	ssize_t byts = recv(fd, buff, 4096, 0);
 
+	ssize_t byts = recv(fd, buff, 4096, 0);
 	if (byts > 0)
 	{
 		request += buff;
-		throw std::string("ready");
 	}
 	else
 		throw byts;
-	// 	parce_http(request);
+	parsing.RequestPars(request);
 }
 
 void	Server::_send(Client& client)
 {
-	std::string	respons;// will come from parser
+	std::string	respons = parsing.response;// will come from parser
 
 	ssize_t byts = send(client.fd, respons.c_str() + client.offset, respons.length() - client.offset, MSG_NOSIGNAL);
 

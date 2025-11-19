@@ -1,5 +1,4 @@
 #include "include.hpp"
-#include <map>
 
 void	epoll_init(int& epfd, int sockfd)
 {
@@ -20,19 +19,17 @@ void	Server::recvRq(struct epoll_event& ev, int fd)
 {
 	try{
 		_recv(fd);
-	}catch (std::string e)
+	}catch (std::runtime_error& e)
 	{
-		if (e == "ready")
-		{
-			std::cout << "[DEBUG] ready to send" << std::endl;
-			ev.events = EPOLLOUT | EPOLLRDHUP;
-			epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &(ev));
-		}
+		return;
 	}catch (ssize_t e)
 	{
 		closeClient(fd);
 		std::cout << "[DEBUG] the connection closed 2" << std::endl;
 	}
+	std::cout << "[DEBUG] ready to send" << config.port[0] << std::endl;
+	ev.events = EPOLLOUT | EPOLLRDHUP;
+	epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &(ev));
 }
 
 void	Server::epoll_loop()

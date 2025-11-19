@@ -16,5 +16,3 @@ void creat_and_write(std::string& dirname, std::string& content)
 		std::cerr << "Failed to write to file " << filename << "\n";
 	close(fd);
 }
-
-

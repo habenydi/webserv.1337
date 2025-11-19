@@ -1,28 +1,41 @@
 #include "include.hpp"
 
+globale config;
 
-// int	main(int ac, char **av)
-// {
-// 	if (ac != 2)
-// 	{
-// 		std::cerr << "Usage: ./webserv <conf file>" << std::endl;
-// 		return 1;
-// 	}
-// 	pars prs;
-// 	globale config;
-// 	prs.parsing(av[1], config);
-// 	Server server[config.port.size()];
-// 	for (size_t i = 0; i < config.port.size(); i++)
-// 		server[i].run(std::atoi(config.port[i].c_str()));
-// 	return 0;
-// }
+int	main(int ac, char **av)
+{
+	if (ac != 2)
+	{
+		std::cerr << "Usage: ./webserv <conf file>" << std::endl;
+		return 1;
+	}
+	pars prs;
+	prs.parsing(av[1], config);
+	Server server[config.port.size()];
+	for (size_t i = 0; i < config.port.size(); i++)
+	{
+		try {
+			server[i].run(std::atoi(config.port.c_str()));
+		}catch (std::exception& e)
+		{
+			std::cerr << "[ERROR] " << e.what() << std::endl;
+			return 1;
+		}
+		catch (...)
+		{
+			std::cerr << "[ERROR] unexpected error :(" << std::endl;
+			return 1;
+		}
+	}
+	return 0;
+}
 
 // int set_nonblocking(int fd) {
 // 	int flags = fcntl(fd, F_GETFL, 0);
 // 	if (flags == -1) return -1;
 // 	return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 // }
-
+/*
 int main(int ac, char **av) {
 
 		// return (1); // khliha bax ntesty
@@ -211,4 +224,4 @@ int main(int ac, char **av) {
 	// }
 	
 	// return 0;
-}
+}*/

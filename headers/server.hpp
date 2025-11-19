@@ -1,6 +1,7 @@
 #pragma once
 
 #include "external.hpp"
+#include "httpPars.hpp"
 
 typedef struct Client
 {
@@ -15,6 +16,7 @@ class	Server
 	std::vector<int> _fds;
 	int	sockfd;
 	int	epfd;
+	httpPars	parsing;
 
 	int	init_first_sock(int port);
 	void	epoll_loop();
