@@ -1,6 +1,4 @@
 #include "include.hpp"
-#include <map>
-#include <stdexcept>
 
 void	epoll_init(int& epfd, int sockfd)
 {

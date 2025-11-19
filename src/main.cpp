@@ -1,4 +1,7 @@
 #include "include.hpp"
+#include <cstring>
+#include <iostream>
+#include <ostream>
 
 
 int	main(int ac, char **av)
@@ -13,7 +16,15 @@ int	main(int ac, char **av)
 	prs.parsing(av[1], config);
 	Server server[config.port.size()];
 	for (size_t i = 0; i < config.port.size(); i++)
-		server[i].run(std::atoi(config.port[i].c_str()));
+	{
+		try {
+			server[i].run(std::atoi(config.port[i].c_str()));
+		}catch (std::exception& e)
+		{
+			std::cerr << "[ERROR] " << e.what() << std::endl;
+			return 1;
+		}
+	}
 	return 0;
 }
 

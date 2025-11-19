@@ -23,7 +23,6 @@ void	Server::_recv(int fd)
 	if (byts > 0)
 	{
 		request += buff;
-		throw std::string("ready");
 	}
 	else
 		throw byts;
