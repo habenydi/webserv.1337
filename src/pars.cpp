@@ -68,10 +68,6 @@ void pars::parsing(std::string filename, std::vector<globale>& result)
 	ReadFromFile(filename, content);
 	std::vector<std::string> Tokens = Tokenizer(content);
 	ParsTokens(Tokens);
-	for (size_t i = 0; i < Tokens.size(); i++)
-	{
-		std::cout << '"' << Tokens[i] << '"' << std::endl;
-	}
 	result = this->data;
 }
 
@@ -162,9 +158,9 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 				throw std::runtime_error("Error: missing value after 'listen'");
 			size_t pos = 0;
 			if ((pos = token[index + 1].find(":")) != std::string::npos)
-				data.port = token[++index].substr(pos);
+				data[Index].port.push_back(token[++index].substr(pos));
 			else
-				data.port = token[++index];
+				data[Index].port.push_back(token[++index]);
 		}
 		else if (token[index] == "host")
 		{

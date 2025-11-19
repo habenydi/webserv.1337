@@ -1,5 +1,5 @@
 server {
-    listen 8080;
+    listen 10;
     server_name localhost;
 
     root /var/www/html;
@@ -11,3 +11,18 @@ server {
         autoindex off;
     }
 }
+
+server {
+    listen 80;
+    server_name localhost;
+
+    root /var/www/html;
+    index index.html;
+    client_max_body_size 1000000;
+
+    location / {
+        root /var/www/html;
+        autoindex off;
+    }
+}
+
