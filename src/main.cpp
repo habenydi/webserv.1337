@@ -13,13 +13,13 @@ int	main(int ac, char **av)
 	prs.parsing(av[1], config);
 	for (size_t i = 0; i < config.size(); i++)
 	{
-		std::cout << '"' << config[i].port << "\" ==> " << i << std::endl;
+		std::cout << '"' << config[i].port[0] << "\" ==> " << i << std::endl;
 	}
 	Server server[config.size()];
 	for (size_t i = 0; i < config.size(); i++)
 	{
 		try {
-			server[i].run(std::atoi(config[i].port.c_str()));
+			server[i].run(std::atoi(config[i].port[i].c_str()));
 		}catch (std::exception& e)
 		{
 			std::cerr << "[ERROR] " << e.what() << std::endl;
