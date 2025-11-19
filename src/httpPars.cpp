@@ -1,6 +1,6 @@
 #include "../headers/httpPars.hpp"
 
-bool	httpPars::splitHeader(std::string& result, HttpRequest& request)
+bool	httpPars::splitHeader(std::string& result)
 {
 	if (result.find("\r\n\r\n") == std::string::npos)
 		return false;
@@ -44,7 +44,7 @@ bool	httpPars::splitHeader(std::string& result, HttpRequest& request)
 	return true;
 }
 
-bool	httpPars::RequestPars(std::string& buffer, HttpRequest& request)
+bool	httpPars::RequestPars(std::string& buffer)
 {
 	request.IsPOST = false;
 	size_t header_end = buffer.find("\r\n\r\n");
@@ -53,18 +53,18 @@ bool	httpPars::RequestPars(std::string& buffer, HttpRequest& request)
 		throw std::runtime_error("Incomplete HTTP header");
 	}
 	std::string header = buffer.substr(0, header_end + 4);
-	if (!splitHeader(buffer, request))
+	if (!splitHeader(buffer))
 		return false;
 	if (!request.IsPOST)
 		return true;
-	StoreTheBody(request, buffer);
+	StoreTheBody(buffer);
 	std::string name = "BodyContent";
 	creat_and_write(name, request.body);
 	response = generateResponse(request);
 	return true;
 }
 
-void	httpPars::StoreTheBody(HttpRequest& request, std::string& buffer)
+void	httpPars::StoreTheBody(std::string& buffer)
 {
 	bool	is_chunked = false;
 	if (request.headers.find("Transfer-Encoding") != request.headers.end())
@@ -74,12 +74,12 @@ void	httpPars::StoreTheBody(HttpRequest& request, std::string& buffer)
 			is_chunked = true;
 	}
 	if (is_chunked)
-		ChunkedBody(request, buffer);
+		ChunkedBody(buffer);
 	else
-		RegularBody(request, buffer);
+		RegularBody(buffer);
 }
 
-void	httpPars::ChunkedBody(HttpRequest& request, std::string& buffer)
+void	httpPars::ChunkedBody(std::string& buffer)
 {
 	size_t body_len = buffer.find("0\r\n");
 	if (body_len == std::string::npos)
@@ -91,7 +91,7 @@ void	httpPars::ChunkedBody(HttpRequest& request, std::string& buffer)
 	request.body = buffer.substr(body_start, body_len);
 }
 
-void	httpPars::RegularBody(HttpRequest& request, std::string& buffer)
+void	httpPars::RegularBody(std::string& buffer)
 {
 	size_t header_end = buffer.find("\r\n\r\n");
 	if (request.headers.find("Content-Length") == request.headers.end())
