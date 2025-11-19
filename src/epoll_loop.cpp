@@ -27,7 +27,7 @@ void	Server::recvRq(struct epoll_event& ev, int fd)
 		closeClient(fd);
 		std::cout << "[DEBUG] the connection closed 2" << std::endl;
 	}
-	std::cout << "[DEBUG] ready to send" << std::endl;
+	std::cout << "[DEBUG] ready to send" << config.port[0] << std::endl;
 	ev.events = EPOLLOUT | EPOLLRDHUP;
 	epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &(ev));
 }

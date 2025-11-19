@@ -1,8 +1,6 @@
 #include "include.hpp"
-#include <cstring>
-#include <iostream>
-#include <ostream>
 
+globale config;
 
 int	main(int ac, char **av)
 {
@@ -12,7 +10,6 @@ int	main(int ac, char **av)
 		return 1;
 	}
 	pars prs;
-	globale config;
 	prs.parsing(av[1], config);
 	Server server[config.port.size()];
 	for (size_t i = 0; i < config.port.size(); i++)
@@ -22,6 +19,11 @@ int	main(int ac, char **av)
 		}catch (std::exception& e)
 		{
 			std::cerr << "[ERROR] " << e.what() << std::endl;
+			return 1;
+		}
+		catch (...)
+		{
+			std::cerr << "[ERROR] unexpected error :(" << std::endl;
 			return 1;
 		}
 	}
