@@ -1,10 +1,9 @@
 #pragma once
 
-#include "../headers/external.hpp"
-#include "../headers/server.hpp"
-#include "../headers/pars.hpp"
-#include "../headers/globale.hpp"
-#include "../headers/httpPars.hpp"
-#include "../headers/response.hpp"
-#include "../headers/gbv.hpp"
+#include "../headers/Helper/gbv.hpp"
+#include "../headers/server/server.hpp"
+#include "../headers/parsing/conf_file/pars.hpp"
+#include "../headers/Helper/globale.hpp"
+#include "../headers/parsing/httpRequest/httpPars.hpp"
+#include "../headers/parsing/httpResponse/response.hpp"
 

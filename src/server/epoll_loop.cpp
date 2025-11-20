@@ -1,19 +1,4 @@
-#include "include.hpp"
-
-void	epoll_init(int& epfd, int sockfd)
-{
-	epfd = epoll_create(1);
-	if (epfd == -1)
-	{
-		std::cerr << "[Error] epoll_create fails" << std::endl;
-		return;
-	}
-
-	struct	epoll_event ev;
-	ev.events = EPOLLIN;
-	ev.data.fd = sockfd;
-	epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &ev);
-}
+#include "../include.hpp"
 
 void	Server::recvRq(struct epoll_event& ev, int fd)
 {
@@ -30,6 +15,21 @@ void	Server::recvRq(struct epoll_event& ev, int fd)
 	std::cout << "[DEBUG] ready to send" << config[0].port[0] << std::endl;
 	ev.events = EPOLLOUT | EPOLLRDHUP;
 	epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &(ev));
+}
+
+void	epoll_init(int& epfd, int sockfd)
+{
+	epfd = epoll_create(1);
+	if (epfd == -1)
+	{
+		std::cerr << "[Error] epoll_create fails" << std::endl;
+		return;
+	}
+
+	struct	epoll_event ev;
+	ev.events = EPOLLIN;
+	ev.data.fd = sockfd;
+	epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &ev);
 }
 
 void	Server::epoll_loop()
@@ -64,4 +64,3 @@ void	Server::epoll_loop()
 		}
 	}
 }
-
