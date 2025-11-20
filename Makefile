@@ -1,26 +1,28 @@
-NAME	 = webserv
+NAME       = webserv
 
-CXX	 = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXX        = c++
+CXXFLAGS   = -Wall -Wextra -Werror -std=c++98
 
-SRCS	 = ./src/Helper/CreatAndWrite.cpp ./src/server/epoll_loop.cpp ./src/parsing/httpRequest/httpPars.cpp ./src/main.cpp \
-			./src/parsing/conf_file/pars.cpp ./src/CGI/recv_send.cpp \
-			./src/parsing/httpResponse/response.cpp ./src/server/server.cpp 
-
-OBJS	 = $(SRCS:.cpp=.o)
+SRCS       = src/CGI/recv_send.cpp src/Helper/CreatAndWrite.cpp src/main.cpp src/parsing/conf_file/pars.cpp src/parsing/httpRequest/httpPars.cpp src/parsing/httpResponse/response.cpp src/server/epoll_loop.cpp src/server/server.cpp 
+OBJDIR     = obj
+OBJS       = $(SRCS:src/%.cpp=$(OBJDIR)/%.o)
 
 all: $(NAME)
 
-$(NAME): $(OBJS)
+$(NAME): $(OBJDIR) $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 	@echo "\033[0;32m✓ $(NAME) compiled successfully!\033[0m"
 
-%.o: %.cpp
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
+$(OBJDIR)/%.o: src/%.cpp
+	mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	@rm -f $(OBJS)
-	@echo "\033[0;33m✓ Object files cleaned\033[0m"
+	@rm -rf $(OBJDIR)
+	@echo "\033[0;33m✓ Object directory removed\033[0m"
 
 fclean: clean
 	@rm -f $(NAME)
