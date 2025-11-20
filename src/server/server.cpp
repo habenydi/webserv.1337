@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "../include.hpp"
 
-void	Server::run(int port)
+void Server::run(std::vector<int> port)
 {
-	if (init_first_sock(port))
+	if (init_first_sock(port[0]))
 		return;
 	epoll_loop();
 }

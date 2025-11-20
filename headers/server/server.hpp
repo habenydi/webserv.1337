@@ -1,7 +1,7 @@
 #pragma once
 
-#include "external.hpp"
-#include "httpPars.hpp"
+#include "../external.hpp"
+#include "../parsing/httpRequest/httpPars.hpp"
 
 typedef struct Client
 {
@@ -29,5 +29,5 @@ class	Server
 	// ``` the parser object ```
 	public:
 		
-		void run(int port);
+		void run(std::vector<int> port);
 };

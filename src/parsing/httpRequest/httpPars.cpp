@@ -1,4 +1,4 @@
-#include "../headers/httpPars.hpp"
+#include "../../include.hpp"
 
 bool	httpPars::splitHeader(std::string& result)
 {

@@ -1,4 +1,21 @@
-#include "include.hpp"
+#include "../include.hpp"
+
+void	Server::recvRq(struct epoll_event& ev, int fd)
+{
+	try{
+		_recv(fd);
+	}catch (std::runtime_error& e)
+	{
+		return;
+	}catch (ssize_t e)
+	{
+		closeClient(fd);
+		std::cout << "[DEBUG] the connection closed 2" << std::endl;
+	}
+	std::cout << "[DEBUG] ready to send" << config[0].port[0] << std::endl;
+	ev.events = EPOLLOUT | EPOLLRDHUP;
+	epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &(ev));
+}
 
 void	epoll_init(int& epfd, int sockfd)
 {
@@ -13,23 +30,6 @@ void	epoll_init(int& epfd, int sockfd)
 	ev.events = EPOLLIN;
 	ev.data.fd = sockfd;
 	epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &ev);
-}
-
-void	Server::recvRq(struct epoll_event& ev, int fd)
-{
-	try{
-		_recv(fd);
-	}catch (std::runtime_error& e)
-	{
-		return;
-	}catch (ssize_t e)
-	{
-		closeClient(fd);
-		std::cout << "[DEBUG] the connection closed 2" << std::endl;
-	}
-	std::cout << "[DEBUG] ready to send" << config.port[0] << std::endl;
-	ev.events = EPOLLOUT | EPOLLRDHUP;
-	epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &(ev));
 }
 
 void	Server::epoll_loop()
@@ -64,4 +64,3 @@ void	Server::epoll_loop()
 		}
 	}
 }
-

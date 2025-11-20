@@ -19,7 +19,7 @@ int	main(int ac, char **av)
 	for (size_t i = 0; i < config.size(); i++)
 	{
 		try {
-			server[i].run(std::atoi(config[i].port[i].c_str()));
+			server[i].run(config[i].port);
 		}catch (std::exception& e)
 		{
 			std::cerr << "[ERROR] " << e.what() << std::endl;

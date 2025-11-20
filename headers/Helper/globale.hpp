@@ -1,6 +1,6 @@
 #pragma once
 
-#include "external.hpp"
+#include "../external.hpp"
 
 struct LocationConfig
 {
@@ -24,7 +24,7 @@ struct LocationConfig
 class globale
 {
 public:
-	std::vector<std::string> port;
+	std::vector<int> port;
 	std::string host;
 	std::string server_name;
 	std::string path;
