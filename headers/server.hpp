@@ -29,5 +29,5 @@ class	Server
 	// ``` the parser object ```
 	public:
 		
-		void run(int port);
+	void run(std::vector<int> port);
 };
