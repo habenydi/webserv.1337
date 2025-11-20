@@ -3,8 +3,9 @@ NAME	 = webserv
 CXX	 = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRCS	 = ./src/CreatAndWrite.cpp ./src/epoll_loop.cpp ./src/httpPars.cpp ./src/main.cpp ./src/pars.cpp ./src/recv_send.cpp \
-			./src/response.cpp ./src/server.cpp 
+SRCS	 = ./src/Helper/CreatAndWrite.cpp ./src/server/epoll_loop.cpp ./src/parsing/httpRequest/httpPars.cpp ./src/main.cpp \
+			./src/parsing/conf_file/pars.cpp ./src/CGI/recv_send.cpp \
+			./src/parsing/httpResponse/response.cpp ./src/server/server.cpp 
 
 OBJS	 = $(SRCS:.cpp=.o)
 

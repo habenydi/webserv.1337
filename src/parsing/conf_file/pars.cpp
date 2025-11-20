@@ -1,4 +1,4 @@
-#include "include.hpp"
+#include "../../include.hpp"
 
 void pars::ReadFromFile(std::string &filename, std::string &content)
 {
