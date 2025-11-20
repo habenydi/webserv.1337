@@ -1,4 +1,4 @@
-	#include "include.hpp"
+#include "include.hpp"
 
 std::vector<globale> config;
 
@@ -15,21 +15,18 @@ int	main(int ac, char **av)
 	{
 		std::cout << '"' << config[i].port[0] << "\" ==> " << i << std::endl;
 	}
-	Server server[config.size()];
-	for (size_t i = 0; i < config.size(); i++)
+	Server server;
+	try {
+		server.run();
+	}catch (std::exception& e)
 	{
-		try {
-			server[i].run(config[i].port);
-		}catch (std::exception& e)
-		{
-			std::cerr << "[ERROR] " << e.what() << std::endl;
-			return 1;
-		}
-		catch (...)
-		{
-			std::cerr << "[ERROR] unexpected error :(" << std::endl;
-			return 1;
-		}
+		std::cerr << "[ERROR] " << e.what() << std::endl;
+		return 1;
+	}
+	catch (...)
+	{
+		std::cerr << "[ERROR] unexpected error :(" << std::endl;
+		return 1;
 	}
 	return 0;
 }
