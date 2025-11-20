@@ -1,9 +1,11 @@
 #include "include.hpp"
 
 std::vector<globale> config;
+char	**env;
 
-int	main(int ac, char **av)
+int	main(int ac, char **av, char **menv)
 {
+	env = menv;
 	if (ac != 2)
 	{
 		std::cerr << "Usage: ./webserv <conf file>" << std::endl;
