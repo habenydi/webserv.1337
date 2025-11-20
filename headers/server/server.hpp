@@ -2,6 +2,7 @@
 
 #include "../external.hpp"
 #include "../parsing/httpRequest/httpPars.hpp"
+#include "../Helper/globale.hpp"
 
 typedef struct Client
 {
@@ -10,17 +11,25 @@ typedef struct Client
 	size_t			fd;
 }	Client;
 
+typedef	struct	sock
+{
+	int	sockfd;
+	int	port;
+	globale conf;
+
+}	sock;
+
 class	Server
 {
-	int	_port;
-	std::vector<int> _fds;
-	int	sockfd;
+	std::vector<sock>			socks;
+	//std::map<int, globale&>	confs;
 	int	epfd;
 	httpPars	parsing;
 
-	int	init_first_sock(int port);
+	int	init_first_sock();
+	void	epoll_init();
 	void	epoll_loop();
-	void	accept_client();
+	void	accept_client(int sockfd);
 	void	_recv(int);
 	void	_send(Client&);
 	void	recvRq(struct epoll_event&, int fd);
@@ -28,6 +37,5 @@ class	Server
 	void	closeClient(int fd);
 	// ``` the parser object ```
 	public:
-		
-		void run(std::vector<int> port);
+		void run();
 };

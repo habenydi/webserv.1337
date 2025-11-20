@@ -17,7 +17,7 @@ void	Server::recvRq(struct epoll_event& ev, int fd)
 	epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &(ev));
 }
 
-void	epoll_init(int& epfd, int sockfd)
+void	Server::epoll_init()
 {
 	epfd = epoll_create(1);
 	if (epfd == -1)
@@ -26,15 +26,17 @@ void	epoll_init(int& epfd, int sockfd)
 		return;
 	}
 
-	struct	epoll_event ev;
-	ev.events = EPOLLIN;
-	ev.data.fd = sockfd;
-	epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &ev);
+	for (size_t i = 0; i < socks.size(); i++) {
+		struct	epoll_event ev;
+		ev.events = EPOLLIN;
+		ev.data.fd = socks[i].sockfd;
+		epoll_ctl(epfd, EPOLL_CTL_ADD, socks[i].sockfd, &ev);
+	}
 }
 
 void	Server::epoll_loop()
 {
-	epoll_init(epfd, sockfd);
+	epoll_init();
 	while (true)
 	{
 		struct epoll_event clients[1000];
@@ -46,10 +48,14 @@ void	Server::epoll_loop()
 			client.ev = clients[i];
 			client.fd = clients[i].data.fd;
 
-			if ((int)client.fd == sockfd)
-				accept_client();
-			else
-			{
+			for (size_t i = 0; i < socks.size(); i++) {
+				if ((int)client.fd == socks[i].sockfd)
+				{
+					accept_client(socks[i].sockfd);
+					goto nextc;
+				}
+			}
+
 				if (client.ev.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 				{
 					closeClient(client.fd);
@@ -60,7 +66,7 @@ void	Server::epoll_loop()
 					recvRq(client.ev, client.fd);
 				else if (clients[i].events & EPOLLOUT)
 					_send(client);
-			}
+				nextc:;
 		}
 	}
 }
