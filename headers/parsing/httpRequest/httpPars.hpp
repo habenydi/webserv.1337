@@ -12,7 +12,8 @@ class httpPars
 	public:
 		HttpRequest	request;
 		std::string response;
-		bool	RequestPars(std::string& buffer);
+		globale	conf;
+		bool	RequestPars(std::string& buffer, globale& conf);
 };
 
 void creat_and_write(std::string& dirname, std::string& content);
