@@ -60,8 +60,9 @@ bool	httpPars::splitHeader(std::string& result)
     return true;
 }
 
-bool	httpPars::RequestPars(std::string& buffer)
+bool	httpPars::RequestPars(std::string& buffer, globale& configue)
 {
+    this->conf = configue;
     request.IsPOST = false;
     size_t header_end = buffer.find("\r\n\r\n");
     if (header_end == std::string::npos)
