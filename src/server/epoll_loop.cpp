@@ -1,20 +1,20 @@
 #include "../include.hpp"
 
-void	Server::recvRq(struct epoll_event& ev, int fd)
+void	Server::recvRq(Client& client)
 {
 	try{
-		_recv(fd);
+		_recv(client.fd, client.conf);
 	}catch (std::runtime_error& e)
 	{
 		return;
 	}catch (ssize_t e)
 	{
-		closeClient(fd);
+		closeClient(client.fd);
 		std::cout << "[DEBUG] the connection closed 2" << std::endl;
 	}
 	std::cout << "[DEBUG] ready to send" << config[0].port[0] << std::endl;
-	ev.events = EPOLLOUT | EPOLLRDHUP;
-	epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &(ev));
+	client.ev.events = EPOLLOUT | EPOLLRDHUP;
+	epoll_ctl(epfd, EPOLL_CTL_MOD, client.fd, &(client.ev));
 }
 
 void	Server::epoll_init()
@@ -51,6 +51,7 @@ void	Server::epoll_loop()
 			for (size_t i = 0; i < socks.size(); i++) {
 				if ((int)client.fd == socks[i].sockfd)
 				{
+					client.conf = socks[i].conf;
 					accept_client(socks[i].sockfd);
 					goto nextc;
 				}
@@ -63,7 +64,7 @@ void	Server::epoll_loop()
 					continue;
 				}
 				else if (clients[i].events & EPOLLIN)
-					recvRq(client.ev, client.fd);
+					recvRq(client);
 				else if (clients[i].events & EPOLLOUT)
 					_send(client);
 				nextc:;

@@ -9,20 +9,20 @@ typedef struct Client
 	struct epoll_event	ev;
 	size_t			offset;
 	size_t			fd;
+	globale			conf;
 }	Client;
 
 typedef	struct	sock
 {
 	int	sockfd;
 	int	port;
-	globale conf;
+	globale& conf;
 
 }	sock;
 
 class	Server
 {
 	std::vector<sock>			socks;
-	//std::map<int, globale&>	confs;
 	int	epfd;
 	httpPars	parsing;
 
@@ -30,9 +30,9 @@ class	Server
 	void	epoll_init();
 	void	epoll_loop();
 	void	accept_client(int sockfd);
-	void	_recv(int);
+	void	_recv(int, globale&);
 	void	_send(Client&);
-	void	recvRq(struct epoll_event&, int fd);
+	void	recvRq(Client&);
 	void	sendRs(Client&);
 	void	closeClient(int fd);
 	// ``` the parser object ```

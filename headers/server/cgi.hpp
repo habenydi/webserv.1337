@@ -15,6 +15,5 @@ class	CGI
 	void	runScript(std::string, std::string);
 	public:
 		std::string	output;
-
 		CGI(int);
 };
