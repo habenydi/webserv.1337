@@ -91,6 +91,12 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest &request)
     }
 }
 
+std::string	getFileExtension(std::string file)
+{
+	size_t pos = file.find_last_of('.');
+	return file.substr(pos);
+}
+
 HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 {
     std::string safe_path = sanitizePath(request.path);
@@ -100,6 +106,12 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 
     // Construct file path (assuming files are in a "www" directory)
     std::string file_path = "./www" + safe_path;
+
+//	CGI cgi(config_file.root, request);
+//	std::string ext = getFileExtension(safe_path);
+//	if (interpreters.find(ext) != interpreters.end()) {
+//	    cgi.run(interpreters[ext], file_path, NULL);
+//	}
 
     std::ifstream file(file_path.c_str(), std::ios::binary);
     if (file.is_open())
@@ -126,6 +138,12 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 
 HttpResponse RequestHandler::handlePostRequest(const HttpRequest &request)
 {
+//	CGI cgi(config_file.root, request);
+//	std::string ext = getFileExtension(safe_path);
+//	if (interpreters.find(ext) != interpreters.end()) {
+//	    cgi.run(interpreters[ext], file_path, request.body);
+//	}
+//
     // For now, just echo back the received data
     HttpResponse response(HttpResponse::OK);
     std::string response_body = "<html><body>"
