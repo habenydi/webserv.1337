@@ -9,6 +9,7 @@ class httpPars
 		bool	splitHeader(std::string& result);
 		void	StoreTheBody(std::string& buffer);
 		void	ChunkedBody(std::string& buffer);
+		void	FindFilename(HttpRequest& request);
 		void	RegularBody(std::string& buffer);
 	public:
 		HttpRequest	request;
@@ -17,5 +18,5 @@ class httpPars
 		bool	RequestPars(std::string& buffer, globale& conf);
 };
 
-void creat_and_write(std::string& dirname, std::string& content);
+void creat_and_write(std::string& name, std::string& content);
 std::string generateResponse(const HttpRequest& request);
