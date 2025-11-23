@@ -17,7 +17,6 @@ typedef	struct	sock
 	int	sockfd;
 	int	port;
 	globale conf;
-
 }	sock;
 
 class	Server
