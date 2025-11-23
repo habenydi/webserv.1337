@@ -2,7 +2,7 @@
 
 #include "../external.hpp"
 #include "../parsing/httpRequest/httpPars.hpp"
-#include "../Helper/globale.hpp"
+#include "../parsing/conf_file/globale.hpp"
 
 typedef struct Client
 {

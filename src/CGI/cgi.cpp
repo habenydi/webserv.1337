@@ -39,7 +39,7 @@ void	CGI::run(std::string interpreter, std::string file, std::string input)
 
 	av[0] = strdup(interpreter.c_str());
 	av[1] = strdup(file.c_str());
-	av[2] = strdup(NULL);
+	av[2] = NULL;
 
 	pid_t	pid = fork();
 	if (pid == -1)

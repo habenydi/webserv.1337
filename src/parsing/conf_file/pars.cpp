@@ -209,6 +209,14 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 				throw std::runtime_error("Error: missing value after 'server_name'");
 			data[Index].server_name = token[++index];
 		}
+		else if (token[index] == "Cgi_Interpreter")
+		{
+			if (index + 2 >= token.size())
+				throw std::runtime_error("Error: missing cgi-interpreter values");
+			std::string ext = token[++index];
+			std::string path = token[++index];
+			data[Index].interpreters[ext] = path;
+		}
 		else if (token[index] != ";")
 			throw std::runtime_error("Unknown directive: " + token[index]);
 		++index;

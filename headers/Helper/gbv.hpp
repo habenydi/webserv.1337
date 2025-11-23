@@ -1,6 +1,6 @@
 #pragma once
 
-#include "globale.hpp"
+#include "../parsing/conf_file/globale.hpp"
 
 extern std::vector<globale> config;
 extern char	**env;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../external.hpp"
+#include "../../external.hpp"
 
 struct LocationConfig
 {
@@ -34,6 +34,7 @@ public:
 	std::vector<std::string> index;
 	std::map<int, std::string> error_page;
 	std::vector<LocationConfig> location;
+	std::map<std::string , std::string> interpreters;
 
 	// Constructor: initialize all members
 	globale()
