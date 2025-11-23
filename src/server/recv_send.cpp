@@ -1,5 +1,4 @@
 #include "../include.hpp"
-#include <stdexcept>
 
 std::string to_string98(size_t n)
 {
@@ -14,7 +13,7 @@ void	Server::closeClient(int fd)
 	close(fd);
 }
 
-void	Server::_recv(int fd)
+void	Server::_recv(int fd, globale& conf)
 {
 	char		buff[4096]; // 4 kb hhhh
 	std::string	request;
@@ -26,7 +25,7 @@ void	Server::_recv(int fd)
 	}
 	else
 		throw byts;
-	parsing.RequestPars(request);
+	parsing.RequestPars(request, conf);
 }
 
 void	Server::_send(Client& client)
