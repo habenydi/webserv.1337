@@ -16,7 +16,7 @@ typedef	struct	sock
 {
 	int	sockfd;
 	int	port;
-	globale& conf;
+	globale conf;
 
 }	sock;
 
@@ -26,7 +26,7 @@ class	Server
 	int	epfd;
 	httpPars	parsing;
 
-	int	init_first_sock();
+	int	init_sock(size_t);
 	void	epoll_init();
 	void	epoll_loop();
 	void	accept_client(int sockfd);

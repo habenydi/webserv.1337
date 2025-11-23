@@ -57,17 +57,18 @@ void	Server::epoll_loop()
 				}
 			}
 
-				if (client.ev.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
-				{
-					closeClient(client.fd);
-					std::cout << "[DEBUG] the connection closed 1" << std::endl;
-					continue;
-				}
-				else if (clients[i].events & EPOLLIN)
-					recvRq(client);
-				else if (clients[i].events & EPOLLOUT)
-					_send(client);
-				nextc:;
+			if (client.ev.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+			{
+				closeClient(client.fd);
+				std::cout << "[DEBUG] the connection closed 1" << std::endl;
+				continue;
+			}
+			else if (clients[i].events & EPOLLIN)
+				recvRq(client);
+			else if (clients[i].events & EPOLLOUT)
+				_send(client);
+
+			nextc:;
 		}
 	}
 }

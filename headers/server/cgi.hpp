@@ -2,18 +2,16 @@
 
 #include "../external.hpp"
 
-enum	scripts
-{
-	py = 0,
-	js = 1
-};
-
 class	CGI
 {
-	void	python();
-	void	javaScript();
-	void	runScript(std::string, std::string);
+	HttpRequest _req;
+	std::string _root;
+
+	void	setEnv(std::string&);
+
 	public:
 		std::string	output;
-		CGI(int);
+
+		CGI(std::string, HttpRequest);
+		void	run(std::string, std::string, std::string);
 };
