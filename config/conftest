@@ -10,4 +10,7 @@ server {
         root /var/www/html;
         autoindex off;
     }
+    Cgi_Interpreter .py /use/bin/pyhton3
+    Cgi_Interpreter .pl /use/bin/perl
+    Cgi_Interpreter .sh /use/bin/sh
 }

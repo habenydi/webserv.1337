@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../external.hpp"
+#include "../conf_file/globale.hpp"
 
 class httpPars
 {

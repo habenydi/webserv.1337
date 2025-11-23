@@ -2,7 +2,7 @@
 
 #include "../external.hpp"
 #include "../parsing/httpRequest/httpPars.hpp"
-#include "../Helper/globale.hpp"
+#include "../parsing/conf_file/globale.hpp"
 
 typedef struct Client
 {
@@ -25,7 +25,7 @@ class	Server
 	int	epfd;
 	httpPars	parsing;
 
-	int	init_first_sock();
+	int	init_sock(size_t);
 	void	epoll_init();
 	void	epoll_loop();
 	void	accept_client(int sockfd);
