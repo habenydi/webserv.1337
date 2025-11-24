@@ -1,10 +1,20 @@
 #include "../include.hpp"
 
-void creat_and_write(std::string& dirname, std::string& content)
+void creat_and_write(std::string& name, std::string& content)
 {
-	std::ostringstream oss;
-	oss << dirname << "/File_" << std::time(NULL);
-	std::string filename = oss.str();
+	std::string filename;
+	if (name.empty())
+	{
+		std::ostringstream oss;
+		oss << "BodyContent" << "/File_" << std::time(NULL);
+		filename = oss.str();
+	}
+	else
+	{
+		std::ostringstream oss;
+		oss << "DataBase" << name;
+		filename = oss.str();
+	}
 	int fd = open(filename.c_str(), O_CREAT | O_WRONLY, 0666);
 	if (fd < 0)
 	{
