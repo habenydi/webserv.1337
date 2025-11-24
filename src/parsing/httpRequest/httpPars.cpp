@@ -43,7 +43,11 @@ bool	httpPars::splitHeader(std::string& result)
 		key.erase(key.find_last_not_of(" \t") + 1);
 		value.erase(0, value.find_first_not_of(" \t"));
 		value.erase(value.find_last_not_of(" \t") + 1);
-		
+		if (key == "Cookie")
+		{
+			StoreCookies(value);
+			continue ;
+		}
 		request.headers[key] = value;
 	}
 	
@@ -56,9 +60,36 @@ bool	httpPars::splitHeader(std::string& result)
 				<< '"' << it->second << '"' 
 				<< std::endl;
 	}
+	std::cout << "\n\n Cookeis\n\n";
+	for (it = request.cookies.begin(); it != request.cookies.end(); ++it)
+	{
+		std::cout << '"' << it->first << '"' 
+				<< " <---> "
+				<< '"' << it->second << '"' 
+				<< std::endl;
+	}
 	
 	return true;
 }
+
+void	httpPars::StoreCookies(std::string& line)
+{
+	size_t equal,start = 0, semicolon;
+	while (start < line.size())
+	{
+		if ((equal = line.find("=", start)) == std::string::npos)
+			break ;
+		if ((semicolon = line.find(";", equal)) == std::string::npos)
+			semicolon = line.size();
+		std::string	key = line.substr(start, equal - start);
+		std::string value = line.substr(equal + 1, semicolon - equal - 1);
+		request.cookies[key] = value;
+        start = semicolon + 1;
+        while (start < line.size() && (line[start] == ' ' || line[start] == '\t'))
+            start++;
+	}
+}
+
 void	httpPars::FindFilename(HttpRequest& request)
 {
 	std::string name;

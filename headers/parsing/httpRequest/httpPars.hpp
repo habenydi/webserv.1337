@@ -11,6 +11,7 @@ class httpPars
 		void	ChunkedBody(std::string& buffer);
 		void	FindFilename(HttpRequest& request);
 		void	RegularBody(std::string& buffer);
+		void	StoreCookies(std::string& lines);
 	public:
 		HttpRequest	request;
 		std::string response;
