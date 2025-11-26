@@ -3,6 +3,7 @@
 #include "../external.hpp"
 #include "../parsing/httpRequest/httpPars.hpp"
 #include "../parsing/conf_file/globale.hpp"
+#include <csignal>
 
 typedef struct Client
 {
@@ -37,4 +38,10 @@ class	Server
 	// ``` the parser object ```
 	public:
 		void run();
+};
+
+class SigInt : public std::exception
+{
+	public:
+		const char* what() const throw();
 };

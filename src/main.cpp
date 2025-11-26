@@ -1,4 +1,6 @@
 #include "include.hpp"
+#include <iostream>
+#include <ostream>
 
 std::vector<globale> config;
 char	**env;
@@ -13,10 +15,7 @@ int	main(int ac, char **av, char **menv)
 	}
 	pars prs;
 	prs.parsing(av[1], config);
-	for (size_t i = 0; i < config.size(); i++)
-	{
-		std::cout << '"' << config[i].port[0] << "\" ==> " << i << std::endl;
-	}
+
 	Server server;
 	try {
 		server.run();

@@ -1,4 +1,10 @@
 #include "../include.hpp"
+#include <csignal>
+#include <iostream>
+#include <ostream>
+
+const char* SigInt::what() const throw()
+{return "the server is terminated with SIGINT.. \n bye.";}
 
 void	Server::recvRq(Client& client)
 {
@@ -31,7 +37,27 @@ void	Server::epoll_init()
 		ev.events = EPOLLIN;
 		ev.data.fd = socks[i].sockfd;
 		epoll_ctl(epfd, EPOLL_CTL_ADD, socks[i].sockfd, &ev);
+		std::cout << "Listening in the port: " << socks[i].port << std::endl;
 	}
+}
+
+void	sigIntHandl(int sig)//, siginfo_t *info, void* cntxt)
+{
+	//(void)info;
+	//(void)cntxt;
+	if (sig != SIGINT)
+		return;
+	throw SigInt();
+}
+
+void	signals()
+{
+	struct sigaction	sig;
+
+	//sig.sa_sigaction = sigIntHandl;
+	sig.sa_flags = SA_SIGINFO;
+	sigemptyset(&sig.sa_mask);
+	sigaction(SIGINT, &sig, NULL);
 }
 
 void	Server::epoll_loop()
@@ -39,6 +65,7 @@ void	Server::epoll_loop()
 	epoll_init();
 	while (true)
 	{
+		signal(SIGINT, sigIntHandl);
 		struct epoll_event clients[1000];
 		int n = epoll_wait(epfd, clients, 1000, -1);
 		for (int i=0; i < n; i++)
