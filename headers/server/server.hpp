@@ -10,7 +10,6 @@ typedef struct Client
 	struct epoll_event	ev;
 	size_t			offset;
 	size_t			fd;
-	globale			conf;
 }	Client;
 
 typedef	struct	sock
@@ -22,15 +21,16 @@ typedef	struct	sock
 
 class	Server
 {
-	std::vector<sock>			socks;
-	int	epfd;
-	httpPars	parsing;
+	std::vector<sock>	socks;
+	std::map<int, globale>	client_config;
+	int			epfd;
+	httpPars		parsing;
 
 	int	init_sock(size_t);
 	void	epoll_init();
 	void	epoll_loop();
-	void	accept_client(int sockfd);
-	void	_recv(int, globale&);
+	void	accept_client(int sockfd, globale& conf);
+	void	_recv(int);
 	void	_send(Client&);
 	void	recvRq(Client&);
 	void	sendRs(Client&);

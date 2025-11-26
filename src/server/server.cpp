@@ -56,9 +56,10 @@ int	Server::init_sock(size_t i)
 	return 0;
 }
 
-void	Server::accept_client(int sockfd)
+void	Server::accept_client(int sockfd, globale& conf)
 {
 	int client_fd = accept(sockfd, NULL, NULL);
+	client_config[client_fd] = conf;
 	if (client_fd != -1) {
                 set_nonblocking(client_fd);
 

@@ -1,5 +1,4 @@
 #include "../include.hpp"
-#include <csignal>
 
 const char* SigInt::what() const throw()
 {return "the server is terminated with SIGINT.. \n bye.";}
@@ -7,7 +6,7 @@ const char* SigInt::what() const throw()
 void	Server::recvRq(Client& client)
 {
 	try{
-		_recv(client.fd, client.conf);
+		_recv(client.fd);
 	}catch (std::runtime_error& e)
 	{
 		return;
@@ -39,24 +38,16 @@ void	Server::epoll_init()
 	}
 }
 
-void	sigIntHandl(int sig)//, siginfo_t *info, void* cntxt)
+void	sigIntHandl(int sig)
 {
-	//(void)info;
-	//(void)cntxt;
 	if (sig != SIGINT)
 		return;
 	throw SigInt();
 }
 
-void	signals()
-{
-	struct sigaction	sig;
-
-	//sig.sa_sigaction = sigIntHandl;
-	sig.sa_flags = SA_SIGINFO;
-	sigemptyset(&sig.sa_mask);
-	sigaction(SIGINT, &sig, NULL);
-}
+//void	signals()
+//{
+//}
 
 void	Server::epoll_loop()
 {
@@ -76,8 +67,7 @@ void	Server::epoll_loop()
 			for (size_t i = 0; i < socks.size(); i++) {
 				if ((int)client.fd == socks[i].sockfd)
 				{
-					client.conf = socks[i].conf;
-					accept_client(socks[i].sockfd);
+					accept_client(socks[i].sockfd, socks[i].conf);
 					goto nextc;
 				}
 			}
