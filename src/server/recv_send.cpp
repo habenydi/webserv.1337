@@ -1,4 +1,6 @@
 #include "../include.hpp"
+#include <iostream>
+#include <ostream>
 
 std::string to_string98(size_t n)
 {
@@ -15,14 +17,13 @@ void	Server::closeClient(int fd)
 
 void	Server::_recv(int fd, globale& conf)
 {
-	char		buff[conf.max_client_size]; // 4 kb hhhh
+	char		buff[4096]; // 4 kb hhhh
 	std::string	request;
 
-	ssize_t byts = recv(fd, buff, conf.max_client_size, 0);
+	std::cout << "conf.max_client_size: " << conf.max_client_size << std::endl;
+	ssize_t byts = recv(fd, buff, 4096, 0);
 	if (byts > 0)
-	{
 		request += buff;
-	}
 	else
 		throw byts;
 	parsing.RequestPars(request, conf);

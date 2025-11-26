@@ -1,7 +1,5 @@
 #include "../include.hpp"
 #include <csignal>
-#include <iostream>
-#include <ostream>
 
 const char* SigInt::what() const throw()
 {return "the server is terminated with SIGINT.. \n bye.";}
