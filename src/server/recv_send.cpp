@@ -15,10 +15,10 @@ void	Server::closeClient(int fd)
 
 void	Server::_recv(int fd, globale& conf)
 {
-	char		buff[4096]; // 4 kb hhhh
+	char		buff[conf.max_client_size]; // 4 kb hhhh
 	std::string	request;
 
-	ssize_t byts = recv(fd, buff, 4096, 0);
+	ssize_t byts = recv(fd, buff, conf.max_client_size, 0);
 	if (byts > 0)
 	{
 		request += buff;
