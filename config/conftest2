@@ -3,27 +3,29 @@ server {
     listen 9000;
     server_name localhost;
 
-    root ./www/html;
+    root ./;
     index index.html;
     client_max_body_size 1000000;
 
     location / {
-        root ./www/html;
+        root ./;
         autoindex off;
     }
-
+    Cgi_Interpreter .py /usr/bin/python3
+    Cgi_Interpreter .pl /usr/bin/perl
+    Cgi_Interpreter .sh /usr/bin/sh
 }
 
 server {
     listen 8081;
     server_name localhost;
 
-    root ./www/html;
+    root ./;
     index index.html;
     client_max_body_size 1000000;
 
     location / {
-        root ./www/html;
+        root ./;
         autoindex off;
     }
 }

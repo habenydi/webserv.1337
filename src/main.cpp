@@ -18,12 +18,11 @@ int	main(int ac, char **av, char **menv)
 		std::cerr << "Usage: ./webserv <conf file>" << std::endl;
 		return 1;
 	}
-	pars prs;
-	prs.parsing(av[1], config);
-
 	signal(SIGINT, sigIntHandl);
-	Server server;
 	try {
+		pars prs;
+		prs.parsing(av[1], config);
+		Server server;
 		server.run();
 	}catch (std::exception& e)
 	{
