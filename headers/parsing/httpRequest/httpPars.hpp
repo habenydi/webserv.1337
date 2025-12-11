@@ -3,6 +3,28 @@
 #include "../../external.hpp"
 #include "../conf_file/globale.hpp"
 
+struct HttpRequest
+{
+	// --- Request Line ---
+	std::string method;   // GET, POST, DELETE
+	std::string path;     // e.g., "/index.html"
+	std::string version;  // HTTP/1.1
+	globale	conf;
+
+	// --- Headers ---
+	std::map<std::string, std::string> headers; // header_name -> header_value
+
+	// --- Body ---
+	std::string body;     // raw body of the request
+
+	// --- Parsed info for convenience (bonus) ---
+	std::string query_string;               // if URL has "?..."
+	std::map<std::string, std::string> cookies; // parsed "Cookie" header
+	std::map<std::string, std::string> form_data; // for application/x-www-form-urlencoded POST
+	std::vector<unsigned char> raw_body;    // if binary upload, store as bytes
+	bool IsPOST;
+};
+
 class httpPars
 {
 	private:
@@ -15,7 +37,6 @@ class httpPars
 	public:
 		HttpRequest	request;
 		std::string response;
-		globale	conf;
 		bool	RequestPars(std::string& buffer, globale& conf);
 };
 

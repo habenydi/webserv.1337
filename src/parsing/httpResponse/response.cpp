@@ -1,6 +1,4 @@
 #include "../../include.hpp"
-#include <iostream>
-#include <ostream>
 
 static std::string size_to_string(size_t n)
 {
@@ -102,7 +100,7 @@ std::string getFileExtension(std::string file)
 HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 {
     std::string safe_path = sanitizePath(request.path);
-    globale g;
+    globale g = request.conf;
 
     // default is root
     if (safe_path == "/")
@@ -114,7 +112,7 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 	std::string ext = getFileExtension(safe_path);
 	std::cout << "[DEBUG] awdiiiiiiiiiiiiiiiiiiiiii:  " << ext << std::endl;
     if (g.interpreters.find(ext) == g.interpreters.end())
-	std::cout << "[DEBUG] hello " << std::endl;
+	std::cout << "[DEBUG] makaynsh : " << g.interpreters[0] << std::endl;
 
     if (g.interpreters.find(ext) != g.interpreters.end())
     {

@@ -113,7 +113,7 @@ void	httpPars::FindFilename(HttpRequest& request)
 
 bool	httpPars::RequestPars(std::string& buffer, globale& configue)
 {
-	this->conf = configue;
+	this->request.conf = configue;
 	request.IsPOST = false;
 	size_t header_end = buffer.find("\r\n\r\n");
 	if (header_end == std::string::npos)
