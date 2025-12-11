@@ -2,89 +2,140 @@
 
 bool	httpPars::splitHeader(std::string& result)
 {
-    if (result.find("\r\n\r\n") == std::string::npos)
-        return false;
-    
-    std::vector <std::string> lines;
-    size_t next , pos = 0;
-    
-    // Split by \r\n to get individual lines
-    while ((next = result.find("\r\n", pos)) != std::string::npos)
-    {
-        std::string line = result.substr(pos, next - pos);
-        if (!line.empty())  // Only add non-empty lines
-            lines.push_back(line);
-        pos = next + 2;
-    }
-    if (lines.empty())
-        return false;
-    // Parse the first line (request line): METHOD PATH VERSION
-    std::istringstream first(lines[0]);
-    first >> request.method >> request.path >> request.version;
-    
-    if (request.path.empty() || request.method.empty() || request.version.empty()) return false;
+	if (result.find("\r\n\r\n") == std::string::npos)
+		return false;
+	
+	std::vector <std::string> lines;
+	size_t next , pos = 0;
+	
+	// Split by \r\n to get individual lines
+	while ((next = result.find("\r\n", pos)) != std::string::npos)
+	{
+		std::string line = result.substr(pos, next - pos);
+		if (!line.empty())  // Only add non-empty lines
+			lines.push_back(line);
+		pos = next + 2;
+	}
+	if (lines.empty())
+		return false;
+	// Parse the first line (request line): METHOD PATH VERSION
+	std::istringstream first(lines[0]);
+	first >> request.method >> request.path >> request.version;
+	
+	if (request.path.empty() || request.method.empty() || request.version.empty()) return false;
 	if (request.version == "HTTP/1.1")
 		request.version = "HTTP/1.0";
-    if (request.method == "POST")
-        request.IsPOST = true;
-    
-    // Parse headers (starting from line 1)
-    for (size_t i = 1; i < lines.size(); i++)
-    {
-        size_t colon_pos = lines[i].find(":");
-        if (colon_pos == std::string::npos)
-            continue;
-            
-        std::string key = lines[i].substr(0, colon_pos);
-        std::string value = lines[i].substr(colon_pos + 1);
-        
-        // Trim whitespace
-        key.erase(0, key.find_first_not_of(" \t"));
-        key.erase(key.find_last_not_of(" \t") + 1);
-        value.erase(0, value.find_first_not_of(" \t"));
-        value.erase(value.find_last_not_of(" \t") + 1);
-        
-        request.headers[key] = value;
-    }
-    
-    // Debug: print parsed headers
-    std::map<std::string, std::string>::iterator it;
-    for (it = request.headers.begin(); it != request.headers.end(); ++it)
-    {
-        std::cout << '"' << it->first << '"' 
-                << " <---> "
-                << '"' << it->second << '"' 
-                << std::endl;
-    }
-    
-    return true;
+	if (request.method == "POST")
+		request.IsPOST = true;
+	
+	// Parse headers (starting from line 1)
+	for (size_t i = 1; i < lines.size(); i++)
+	{
+		size_t colon_pos = lines[i].find(":");
+		if (colon_pos == std::string::npos)
+			continue;
+			
+		std::string key = lines[i].substr(0, colon_pos);
+		std::string value = lines[i].substr(colon_pos + 1);
+		
+		// Trim whitespace
+		key.erase(0, key.find_first_not_of(" \t"));
+		key.erase(key.find_last_not_of(" \t") + 1);
+		value.erase(0, value.find_first_not_of(" \t"));
+		value.erase(value.find_last_not_of(" \t") + 1);
+		if (key == "Cookie")
+		{
+			StoreCookies(value);
+			continue ;
+		}
+		request.headers[key] = value;
+	}
+	
+	// Debug: print parsed headers
+	std::map<std::string, std::string>::iterator it;
+	for (it = request.headers.begin(); it != request.headers.end(); ++it)
+	{
+		std::cout << '"' << it->first << '"' 
+				<< " <---> "
+				<< '"' << it->second << '"' 
+				<< std::endl;
+	}
+	std::cout << "\n\n Cookeis\n\n";
+	for (it = request.cookies.begin(); it != request.cookies.end(); ++it)
+	{
+		std::cout << '"' << it->first << '"' 
+				<< " <---> "
+				<< '"' << it->second << '"' 
+				<< std::endl;
+	}
+	
+	return true;
 }
 
-bool	httpPars::RequestPars(std::string& buffer)
+void	httpPars::StoreCookies(std::string& line)
 {
-    request.IsPOST = false;
-    size_t header_end = buffer.find("\r\n\r\n");
-    if (header_end == std::string::npos)
-    {
-        throw std::runtime_error("Incomplete HTTP header");
-    }
-    
-    if (!splitHeader(buffer))
-        return false;
-    
-    // For GET requests, generate response immediately
-    if (!request.IsPOST)
-    {
-        response = generateResponse(request);
-        return true;
-    }
-    
-    // For POST requests, handle body
-    StoreTheBody(buffer);
-    std::string name = "BodyContent";
-    creat_and_write(name, request.body);
-    response = generateResponse(request);
-    return true;
+	size_t equal,start = 0, semicolon;
+	while (start < line.size())
+	{
+		if ((equal = line.find("=", start)) == std::string::npos)
+			break ;
+		if ((semicolon = line.find(";", equal)) == std::string::npos)
+			semicolon = line.size();
+		std::string	key = line.substr(start, equal - start);
+		std::string value = line.substr(equal + 1, semicolon - equal - 1);
+		request.cookies[key] = value;
+        start = semicolon + 1;
+        while (start < line.size() && (line[start] == ' ' || line[start] == '\t'))
+            start++;
+	}
+}
+
+void	httpPars::FindFilename(HttpRequest& request)
+{
+	std::string name;
+	if (request.headers.find("Content-Type:") == request.headers.end())
+		creat_and_write(name, request.body);
+	else
+	{
+		size_t start, end;
+		if ((start = request.headers["Content-Type:"].find("filename=\"")) != std::string::npos)
+		{
+			end = request.headers["Content-Type:"].find("\"", start);
+			if (end == std::string::npos)
+				creat_and_write(name, request.body);
+			name = request.headers["Content-Type:"].substr(start, end - start);
+			creat_and_write(name, request.body);
+		}
+		else
+			creat_and_write(name, request.body);
+	}
+}
+
+bool	httpPars::RequestPars(std::string& buffer, globale& configue)
+{
+	this->conf = configue;
+	request.IsPOST = false;
+	size_t header_end = buffer.find("\r\n\r\n");
+	if (header_end == std::string::npos)
+	{
+		throw std::runtime_error("Incomplete HTTP header");
+	}
+	
+	if (!splitHeader(buffer))
+		return false;
+	
+	// For GET requests, generate response immediately
+	if (!request.IsPOST)
+	{
+		response = generateResponse(request);
+		return true;
+	}
+	
+	// For POST requests, handle body
+	StoreTheBody(buffer);
+	FindFilename(request);
+	response = generateResponse(request);
+	return true;
 }
 
 void	httpPars::StoreTheBody(std::string& buffer)

@@ -1,23 +1,26 @@
 #include "../include.hpp"
 
-void	Server::recvRq(struct epoll_event& ev, int fd)
+const char* SigInt::what() const throw()
+{return "the server is terminated with SIGINT.. \n bye.";}
+
+void	Server::recvRq(Client& client)
 {
 	try{
-		_recv(fd);
+		_recv(client.fd);
 	}catch (std::runtime_error& e)
 	{
 		return;
 	}catch (ssize_t e)
 	{
-		closeClient(fd);
+		closeClient(client.fd);
 		std::cout << "[DEBUG] the connection closed 2" << std::endl;
 	}
 	std::cout << "[DEBUG] ready to send" << config[0].port[0] << std::endl;
-	ev.events = EPOLLOUT | EPOLLRDHUP;
-	epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &(ev));
+	client.ev.events = EPOLLOUT | EPOLLRDHUP;
+	epoll_ctl(epfd, EPOLL_CTL_MOD, client.fd, &(client.ev));
 }
 
-void	epoll_init(int& epfd, int sockfd)
+void	Server::epoll_init()
 {
 	epfd = epoll_create(1);
 	if (epfd == -1)
@@ -26,41 +29,62 @@ void	epoll_init(int& epfd, int sockfd)
 		return;
 	}
 
-	struct	epoll_event ev;
-	ev.events = EPOLLIN;
-	ev.data.fd = sockfd;
-	epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &ev);
+	for (size_t i = 0; i < socks.size(); i++) {
+		struct	epoll_event ev;
+		ev.events = EPOLLIN;
+		ev.data.fd = socks[i].sockfd;
+		epoll_ctl(epfd, EPOLL_CTL_ADD, socks[i].sockfd, &ev);
+		std::cout << "Listening in the port: " << socks[i].port << std::endl;
+	}
 }
+
+
+//void	signals()
+//{
+//}
 
 void	Server::epoll_loop()
 {
-	epoll_init(epfd, sockfd);
+	epoll_init();
 	while (true)
 	{
 		struct epoll_event clients[1000];
 		int n = epoll_wait(epfd, clients, 1000, -1);
+		if (n == -1) {
+		    if (errno == EINTR) continue; // Interrupted by signal
+		    std::cerr << "[Error] epoll_wait failed" << std::endl;
+		    break;
+		}
+
 		for (int i=0; i < n; i++)
 		{
+			int f = 0;
 			Client	client;
 			client.offset = 0;
 			client.ev = clients[i];
 			client.fd = clients[i].data.fd;
 
-			if ((int)client.fd == sockfd)
-				accept_client();
-			else
-			{
-				if (client.ev.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+			for (size_t i = 0; i < socks.size(); i++) {
+				if ((int)client.fd == socks[i].sockfd)
 				{
-					closeClient(client.fd);
-					std::cout << "[DEBUG] the connection closed 1" << std::endl;
-					continue;
+					accept_client(socks[i].sockfd, socks[i].conf);
+					f = 1;
+					break;
 				}
-				else if (clients[i].events & EPOLLIN)
-					recvRq(client.ev, client.fd);
-				else if (clients[i].events & EPOLLOUT)
-					_send(client);
 			}
+			if (f) continue;
+
+			if (client.ev.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+			{
+				closeClient(client.fd);
+				std::cout << "[DEBUG] the connection closed 1" << std::endl;
+				continue;
+			}
+			else if (clients[i].events & EPOLLIN)
+				recvRq(client);
+			else if (clients[i].events & EPOLLOUT)
+				_send(client);
+
 		}
 	}
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../external.hpp"
-#include "../../Helper/globale.hpp"
+#include "globale.hpp"
 
 class pars
 {

@@ -20,10 +20,12 @@
 #include <ostream>
 #include <sys/epoll.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <dirent.h>
 #include <ctime>
 #include <sys/stat.h>
 #include <cstdio>
+#include <csignal>
 
 #define MAX_REQUEST_SIZE 5362
 

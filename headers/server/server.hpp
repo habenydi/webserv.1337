@@ -2,6 +2,8 @@
 
 #include "../external.hpp"
 #include "../parsing/httpRequest/httpPars.hpp"
+#include "../parsing/conf_file/globale.hpp"
+#include <csignal>
 
 typedef struct Client
 {
@@ -10,24 +12,36 @@ typedef struct Client
 	size_t			fd;
 }	Client;
 
+typedef	struct	sock
+{
+	int	sockfd;
+	int	port;
+	globale conf;
+}	sock;
+
 class	Server
 {
-	int	_port;
-	std::vector<int> _fds;
-	int	sockfd;
-	int	epfd;
-	httpPars	parsing;
+	std::vector<sock>	socks;
+	std::map<int, globale>	client_config;
+	int			epfd;
+	httpPars		parsing;
 
-	int	init_first_sock(int port);
+	int	init_sock(size_t);
+	void	epoll_init();
 	void	epoll_loop();
-	void	accept_client();
+	void	accept_client(int sockfd, globale& conf);
 	void	_recv(int);
 	void	_send(Client&);
-	void	recvRq(struct epoll_event&, int fd);
+	void	recvRq(Client&);
 	void	sendRs(Client&);
 	void	closeClient(int fd);
 	// ``` the parser object ```
 	public:
-		
-		void run(std::vector<int> port);
+		void run();
+};
+
+class SigInt : public std::exception
+{
+	public:
+		const char* what() const throw();
 };
