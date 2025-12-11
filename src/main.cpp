@@ -1,9 +1,14 @@
 #include "include.hpp"
-#include <iostream>
-#include <ostream>
 
 std::vector<globale> config;
 char	**env;
+
+void	sigIntHandl(int sig)
+{
+	if (sig != SIGINT)
+		return;
+	throw SigInt();
+}
 
 int	main(int ac, char **av, char **menv)
 {
@@ -16,6 +21,7 @@ int	main(int ac, char **av, char **menv)
 	pars prs;
 	prs.parsing(av[1], config);
 
+	signal(SIGINT, sigIntHandl);
 	Server server;
 	try {
 		server.run();

@@ -1,4 +1,5 @@
 // script.js - A fun, self-contained test for your webserv + CGI
+/*
 (function () {
     'use strict';
 
@@ -76,3 +77,5 @@
 
     log('Intialized. Ready to test your webserv + CGI!');
 })();
+*/
+console.log("hello");

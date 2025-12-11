@@ -38,12 +38,6 @@ void	Server::epoll_init()
 	}
 }
 
-void	sigIntHandl(int sig)
-{
-	if (sig != SIGINT)
-		return;
-	throw SigInt();
-}
 
 //void	signals()
 //{
@@ -54,11 +48,17 @@ void	Server::epoll_loop()
 	epoll_init();
 	while (true)
 	{
-		signal(SIGINT, sigIntHandl);
 		struct epoll_event clients[1000];
 		int n = epoll_wait(epfd, clients, 1000, -1);
+		if (n == -1) {
+		    if (errno == EINTR) continue; // Interrupted by signal
+		    std::cerr << "[Error] epoll_wait failed" << std::endl;
+		    break;
+		}
+
 		for (int i=0; i < n; i++)
 		{
+			int f = 0;
 			Client	client;
 			client.offset = 0;
 			client.ev = clients[i];
@@ -68,9 +68,11 @@ void	Server::epoll_loop()
 				if ((int)client.fd == socks[i].sockfd)
 				{
 					accept_client(socks[i].sockfd, socks[i].conf);
-					goto nextc;
+					f = 1;
+					break;
 				}
 			}
+			if (f) continue;
 
 			if (client.ev.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 			{
@@ -83,7 +85,6 @@ void	Server::epoll_loop()
 			else if (clients[i].events & EPOLLOUT)
 				_send(client);
 
-			nextc:;
 		}
 	}
 }
