@@ -1,4 +1,6 @@
 #include "../../include.hpp"
+#include <iostream>
+#include <ostream>
 
 static std::string size_to_string(size_t n)
 {
@@ -110,10 +112,6 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 
     // Check if this is a CGI script
 	std::string ext = getFileExtension(safe_path);
-	std::cout << "[DEBUG] awdiiiiiiiiiiiiiiiiiiiiii:  " << ext << std::endl;
-    if (g.interpreters.find(ext) == g.interpreters.end())
-	std::cout << "[DEBUG] makaynsh : " << g.interpreters[0] << std::endl;
-
     if (g.interpreters.find(ext) != g.interpreters.end())
     {
         CGI cgi(g.root, request);

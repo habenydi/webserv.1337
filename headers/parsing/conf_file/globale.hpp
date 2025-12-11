@@ -58,6 +58,7 @@ public:
 			this->location = other.location;
 			this->server_name = other.server_name;
 			this->max_client_size = other.max_client_size;
+			this->interpreters = other.interpreters;
 		}
 		return (*this);
 	}
