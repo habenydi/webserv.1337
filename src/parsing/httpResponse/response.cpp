@@ -91,27 +91,37 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest &request)
     }
 }
 
-std::string	getFileExtension(std::string file)
+std::string getFileExtension(std::string file)
 {
-	size_t pos = file.find_last_of('.');
-	return file.substr(pos);
+    size_t pos = file.find_last_of('.');
+    return file.substr(pos);
 }
 
 HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 {
     std::string safe_path = sanitizePath(request.path);
+    globale g;
+
     // default is root
     if (safe_path == "/")
         safe_path = "/index.html";
 
-    // Construct file path (assuming files are in a "www" directory)
     std::string file_path = "./www" + safe_path;
 
-//	CGI cgi(config_file.root, request);
-//	std::string ext = getFileExtension(safe_path);
-//	if (interpreters.find(ext) != interpreters.end()) {
-//	    cgi.run(interpreters[ext], file_path, NULL);
-//	}
+    // Check if this is a CGI script
+    std::string ext = getFileExtension(safe_path);
+    if (g.interpreters.find(ext) != g.interpreters.end())
+    {
+        CGI cgi(g.root, request);
+        cgi.run(g.interpreters[ext], file_path, "");
+
+        // Return CGI output as response
+        HttpResponse response(HttpResponse::OK);
+        std::string content_type = getContentType(file_path);
+        response.setHeader("Content-Type", content_type);
+        response.setBody(cgi.output);
+        return response;
+    }
 
     std::ifstream file(file_path.c_str(), std::ios::binary);
     if (file.is_open())
@@ -121,11 +131,9 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
         file.close();
 
         HttpResponse response(HttpResponse::OK);
-
         std::string content_type = getContentType(file_path);
         response.setHeader("Content-Type", content_type);
         response.setBody(content);
-
         return response;
     }
     else
@@ -138,13 +146,30 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 
 HttpResponse RequestHandler::handlePostRequest(const HttpRequest &request)
 {
-//	CGI cgi(config_file.root, request);
-//	std::string ext = getFileExtension(safe_path);
-//	if (interpreters.find(ext) != interpreters.end()) {
-//	    cgi.run(interpreters[ext], file_path, request.body);
-//	}
-//
-    // For now, just echo back the received data
+    std::string safe_path = sanitizePath(request.path);
+    globale g;
+
+    if (safe_path == "/")
+        safe_path = "/index.html";
+
+    std::string file_path = "./www" + safe_path;
+    std::string ext = getFileExtension(safe_path);
+
+    // Check if this is a CGI script
+    if (g.interpreters.find(ext) != g.interpreters.end())
+    {
+        CGI cgi(g.root, request);
+        cgi.run(g.interpreters[ext], file_path, request.body);
+
+        // RETURN CGI OUTPUT
+        HttpResponse response(HttpResponse::OK);
+        std::string content_type = getContentType(file_path);
+        response.setHeader("Content-Type", content_type);
+        response.setBody(cgi.output);
+        return response;
+    }
+
+    // NOT a CGI script
     HttpResponse response(HttpResponse::OK);
     std::string response_body = "<html><body>"
                                 "<h1>POST Request Received</h1>"
