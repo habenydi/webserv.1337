@@ -1,4 +1,6 @@
 #include "../../include.hpp"
+#include <iostream>
+#include <ostream>
 
 static std::string size_to_string(size_t n)
 {
@@ -109,7 +111,11 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
     std::string file_path = "./www" + safe_path;
 
     // Check if this is a CGI script
-    std::string ext = getFileExtension(safe_path);
+	std::string ext = getFileExtension(safe_path);
+	std::cout << "[DEBUG] awdiiiiiiiiiiiiiiiiiiiiii:  " << ext << std::endl;
+    if (g.interpreters.find(ext) == g.interpreters.end())
+	std::cout << "[DEBUG] hello " << std::endl;
+
     if (g.interpreters.find(ext) != g.interpreters.end())
     {
         CGI cgi(g.root, request);
@@ -117,8 +123,8 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 
         // Return CGI output as response
         HttpResponse response(HttpResponse::OK);
-        std::string content_type = getContentType(file_path);
-        response.setHeader("Content-Type", content_type);
+        std::string content_type = getContentType(cgi.output);
+        response.setHeader("Content-Type", "text/html");
         response.setBody(cgi.output);
         return response;
     }
@@ -163,7 +169,7 @@ HttpResponse RequestHandler::handlePostRequest(const HttpRequest &request)
 
         // RETURN CGI OUTPUT
         HttpResponse response(HttpResponse::OK);
-        std::string content_type = getContentType(file_path);
+        std::string content_type = getContentType(cgi.output);
         response.setHeader("Content-Type", content_type);
         response.setBody(cgi.output);
         return response;

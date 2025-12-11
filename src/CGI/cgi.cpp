@@ -76,6 +76,6 @@ void	CGI::run(std::string interpreter, std::string file, std::string input)
 		output += line;
 		
 	close(fd[0]);
-	std::cout << "\n [DEBUG] \n\n" << output << std::endl;
+	std::cout << "\n [DEBUG] 7\n\n" << output << std::endl;
 
 }
