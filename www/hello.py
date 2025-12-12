@@ -19,7 +19,7 @@ if method == "POST" and content_length.isdigit():
 
 # Build response
 print("Content-Type: text/html; charset=utf-8")
-print()  # blank line = end of headers
+print("\r\n")  # blank line = end of headers
 
 print(f"""
 <!DOCTYPE html>

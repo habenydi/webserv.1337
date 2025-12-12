@@ -31,20 +31,36 @@ void HttpResponse::setBody(const std::string &body)
     headers["Content-Length"] = size_to_string(body.length());
 }
 
+void HttpResponse::clearHeaders()
+{
+    headers.clear();
+}
+
+// Add new method to set body without Content-Length
+void HttpResponse::setRawBody(const std::string &body)
+{
+    this->body = body;
+}
+
+// Only add HTTP status line if we have headers
+// (CGI responses with their own headers don't need it duplicated)
 std::string HttpResponse::toString() const
 {
     std::ostringstream response;
-
-    response << "HTTP/1.1 " << status_code << " " << getReasonPhrase(status_code) << "\r\n"; // Changed from HTTP/1.0 to HTTP/1.1
-
-    for (std::map<std::string, std::string>::const_iterator it = headers.begin();
-         it != headers.end(); ++it)
+    if (!headers.empty())
     {
-        response << it->first << ": " << it->second << "\r\n";
-    }
+        response << "HTTP/1.1 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
 
-    // Empty line to separate headers from body
-    response << "\r\n";
+        for (std::map<std::string, std::string>::const_iterator it = headers.begin();
+             it != headers.end(); ++it)
+        {
+            response << it->first << ": " << it->second << "\r\n";
+        }
+
+        response << "\r\n";
+    }
+    else
+        response << "HTTP/1.1 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
 
     if (!body.empty())
         response << body;
@@ -96,6 +112,8 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest &request)
 std::string getFileExtension(std::string file)
 {
     size_t pos = file.find_last_of('.');
+    if (pos == std::string::npos)
+        return "";
     return file.substr(pos);
 }
 
@@ -104,24 +122,31 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
     std::string safe_path = sanitizePath(request.path);
     globale g = request.conf;
 
-    // default is root
     if (safe_path == "/")
         safe_path = "/index.html";
 
     std::string file_path = "./www" + safe_path;
+    std::string ext = getFileExtension(safe_path);
 
     // Check if this is a CGI script
-	std::string ext = getFileExtension(safe_path);
-    if (g.interpreters.find(ext) != g.interpreters.end())
+    if (!ext.empty() && g.interpreters.find(ext) != g.interpreters.end())
     {
         CGI cgi(g.root, request);
         cgi.run(g.interpreters[ext], file_path, "");
 
-        // Return CGI output as response
         HttpResponse response(HttpResponse::OK);
-        std::string content_type = getContentType(cgi.output);
-        response.setHeader("Content-Type", "text/html");
-        response.setBody(cgi.output);
+
+        // Check if CGI already has headers
+        if (cgi.output.find("Content-Type:") != std::string::npos)
+        {
+            response.clearHeaders();
+            response.setRawBody(cgi.output);
+        }
+        else
+        {
+            response.setBody(cgi.output);
+        }
+
         return response;
     }
 
@@ -157,21 +182,26 @@ HttpResponse RequestHandler::handlePostRequest(const HttpRequest &request)
     std::string file_path = "./www" + safe_path;
     std::string ext = getFileExtension(safe_path);
 
-    // Check if this is a CGI script
-    if (g.interpreters.find(ext) != g.interpreters.end())
+    if (!ext.empty() && g.interpreters.find(ext) != g.interpreters.end())
     {
         CGI cgi(g.root, request);
         cgi.run(g.interpreters[ext], file_path, request.body);
 
-        // RETURN CGI OUTPUT
         HttpResponse response(HttpResponse::OK);
-        std::string content_type = getContentType(cgi.output);
-        response.setHeader("Content-Type", content_type);
-        response.setBody(cgi.output);
+
+        if (cgi.output.find("Content-Type:") != std::string::npos)
+        {
+            response.clearHeaders();
+            response.setRawBody(cgi.output);
+        }
+        else
+        {
+            response.setBody(cgi.output);
+        }
+
         return response;
     }
 
-    // NOT a CGI script
     HttpResponse response(HttpResponse::OK);
     std::string response_body = "<html><body>"
                                 "<h1>POST Request Received</h1>"
@@ -184,9 +214,6 @@ HttpResponse RequestHandler::handlePostRequest(const HttpRequest &request)
     return response;
 }
 
-// Remove any ".." to prevent directory traversal
-// Replace any occurrences of ".." with empty string
-// Ensure path starts with "/" and doesn't go above root
 std::string RequestHandler::sanitizePath(const std::string &path)
 {
     std::string sanitized = path;
@@ -226,7 +253,7 @@ std::string RequestHandler::getContentType(const std::string &file_path)
             return "text/plain";
     }
 
-    return "application/octet-stream"; // Default if no extension matched
+    return "application/octet-stream";
 }
 
 std::string generateResponse(const HttpRequest &request)

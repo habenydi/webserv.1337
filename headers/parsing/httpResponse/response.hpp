@@ -19,6 +19,8 @@ public:
     void setStatusCode(StatusCode code);
     void setHeader(const std::string& name, const std::string& value);
     void setBody(const std::string& body);
+    void clearHeaders();
+    void setRawBody(const std::string& body);
     std::string toString() const;
 
 private:
