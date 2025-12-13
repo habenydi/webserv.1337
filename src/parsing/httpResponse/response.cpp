@@ -136,7 +136,6 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 
         HttpResponse response(HttpResponse::OK);
 
-        // Check if CGI already has headers
         if (cgi.output.find("Content-Type:") != std::string::npos)
         {
             response.clearHeaders();
@@ -165,8 +164,22 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
     }
     else
     {
+        std::ifstream error_file("./www/404.html", std::ios::binary);
         HttpResponse response(HttpResponse::NOT_FOUND);
-        response.setBody("<html><body><h1>404 Not Found</h1><p>File: " + request.path + "</p></body></html>");
+
+        if (error_file.is_open())
+        {
+            std::string error_content((std::istreambuf_iterator<char>(error_file)),
+                                      std::istreambuf_iterator<char>());
+            error_file.close();
+            response.setHeader("Content-Type", "text/html");
+            response.setBody(error_content);
+        }
+        else
+        {
+            response.setBody("<html><body><h1>404 Not Found</h1><p>File: " + request.path + "</p></body></html>");
+        }
+
         return response;
     }
 }
