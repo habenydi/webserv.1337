@@ -172,7 +172,7 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
     }
     else
     {
-        std::string not_found_path = g.root + "/404.html";
+        std::string not_found_path = g.root + g.error_page[404];
         std::ifstream error_file(not_found_path.c_str(), std::ios::binary);
         HttpResponse response(HttpResponse::NOT_FOUND);
 
