@@ -2,13 +2,14 @@
 
 void	CGI::setEnv(std::string& file)
 {
+	(void)file;
 	if (chdir(_root.c_str()) == -1)
 	{
 		std::cerr << "[ERROR] chdir failed" << std::endl;
 		return;
 	}
 	setenv("REQUEST_METHOD", _req.method.c_str(), 1);
-	setenv("SCRIPT_NAME", file.c_str(), 1);
+	setenv("SCRIPT_NAME", _req.path.c_str(), 1);  // Changed from file.c_str() to _req.path.c_str()
 	setenv("QUERY_STRING", _req.query_string.c_str(), 1);
 	if (_req.headers.find("Content-Length") != _req.headers.end())
 		setenv("CONTENT_LENGTH", _req.headers.find("Content-Length")->second.c_str(), 1);

@@ -125,14 +125,21 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
     if (safe_path == "/")
         safe_path = "/index.html";
 
-    std::string file_path = "./www" + safe_path;
+    std::string file_path = g.root + safe_path;
     std::string ext = getFileExtension(safe_path);
 
     // Check if this is a CGI script
     if (!ext.empty() && g.interpreters.find(ext) != g.interpreters.end())
     {
-        CGI cgi(g.root, request);
-        cgi.run(g.interpreters[ext], file_path, "");
+        size_t last_slash = safe_path.find_last_of('/');
+        std::string filename;
+        if (last_slash != std::string::npos)
+            filename = safe_path.substr(last_slash + 1);
+        else
+            filename = safe_path;
+
+        CGI cgi("./www/cgi-bin", request);
+        cgi.run(g.interpreters[ext], filename, "");
 
         HttpResponse response(HttpResponse::OK);
 
@@ -164,7 +171,7 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
     }
     else
     {
-        std::ifstream error_file("./www/404.html", std::ios::binary);
+        std::ifstream error_file("./www/html/404.html", std::ios::binary);
         HttpResponse response(HttpResponse::NOT_FOUND);
 
         if (error_file.is_open())
@@ -187,18 +194,25 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 HttpResponse RequestHandler::handlePostRequest(const HttpRequest &request)
 {
     std::string safe_path = sanitizePath(request.path);
-    globale g;
+    globale g = request.conf;
 
     if (safe_path == "/")
         safe_path = "/index.html";
 
-    std::string file_path = "./www" + safe_path;
+    std::string file_path = g.root + safe_path;
     std::string ext = getFileExtension(safe_path);
 
     if (!ext.empty() && g.interpreters.find(ext) != g.interpreters.end())
     {
-        CGI cgi(g.root, request);
-        cgi.run(g.interpreters[ext], file_path, request.body);
+        size_t last_slash = safe_path.find_last_of('/');
+        std::string filename;
+        if (last_slash != std::string::npos)
+            filename = safe_path.substr(last_slash + 1);
+        else
+            filename = safe_path;
+
+        CGI cgi("./www/cgi-bin", request);
+        cgi.run(g.interpreters[ext], filename, request.body);
 
         HttpResponse response(HttpResponse::OK);
 
@@ -227,6 +241,8 @@ HttpResponse RequestHandler::handlePostRequest(const HttpRequest &request)
     return response;
 }
 
+// Sanitize the path to prevent directory traversal attacks
+// remove any ".." segments and ensure it starts with "/"
 std::string RequestHandler::sanitizePath(const std::string &path)
 {
     std::string sanitized = path;
@@ -244,27 +260,30 @@ std::string RequestHandler::sanitizePath(const std::string &path)
 std::string RequestHandler::getContentType(const std::string &file_path)
 {
     size_t dot_pos = file_path.find_last_of('.');
-    if (dot_pos != std::string::npos)
-    {
-        std::string extension = file_path.substr(dot_pos + 1);
+    if (dot_pos == std::string::npos)
+        return "application/octet-stream";
 
-        if (extension == "html" || extension == "htm")
-            return "text/html";
-        else if (extension == "css")
-            return "text/css";
-        else if (extension == "js")
-            return "application/javascript";
-        else if (extension == "json")
-            return "application/json";
-        else if (extension == "png")
-            return "image/png";
-        else if (extension == "jpg" || extension == "jpeg")
-            return "image/jpeg";
-        else if (extension == "gif")
-            return "image/gif";
-        else if (extension == "txt")
-            return "text/plain";
+    std::string ext = file_path.substr(dot_pos + 1);
+
+    static std::map<std::string, std::string> mimeTypes;
+
+    if (mimeTypes.empty())
+    {
+        mimeTypes["html"] = "text/html";
+        mimeTypes["htm"] = "text/html";
+        mimeTypes["css"] = "text/css";
+        mimeTypes["js"] = "application/javascript";
+        mimeTypes["json"] = "application/json";
+        mimeTypes["png"] = "image/png";
+        mimeTypes["jpg"] = "image/jpeg";
+        mimeTypes["jpeg"] = "image/jpeg";
+        mimeTypes["gif"] = "image/gif";
+        mimeTypes["txt"] = "text/plain";
     }
+
+    std::map<std::string, std::string>::iterator it = mimeTypes.find(ext);
+    if (it != mimeTypes.end())
+        return it->second;
 
     return "application/octet-stream";
 }
