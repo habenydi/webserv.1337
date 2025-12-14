@@ -166,7 +166,10 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 		{
 			if (index + 1 >= token.size())
 				throw std::runtime_error("Error: missing value after 'host'");
-			data[Index].host = token[++index];
+			if (token[index] == "localhost")
+				data[Index].host = "127.0.0.1";
+			else
+				data[Index].host = token[++index];
 		}
 		else if (token[index] == "root")
 		{
