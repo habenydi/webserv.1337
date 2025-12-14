@@ -181,7 +181,7 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 				throw std::runtime_error("Error: missing values after 'index'");
 			while (index < token.size() && token[index] != ";")
 			{
-				data[Index].index.push_back(token[index]);
+				data[Index].index = token[index];
 				++index;
 			}
 			if (index >= token.size() || token[index] != ";")

@@ -31,7 +31,7 @@ public:
 	std::string root;
 	unsigned long max_client_size;
 	bool autoindex;
-	std::vector<std::string> index;
+	std::string index;
 	std::map<int, std::string> error_page;
 	std::vector<LocationConfig> location;
 	std::map<std::string , std::string> interpreters;

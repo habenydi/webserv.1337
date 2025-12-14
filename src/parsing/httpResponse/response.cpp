@@ -122,8 +122,9 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
     std::string safe_path = sanitizePath(request.path);
     globale g = request.conf;
 
+    std::string index = "/" + g.index;
     if (safe_path == "/")
-        safe_path = "/index.html";
+        safe_path = index;
 
     std::string file_path = g.root + safe_path;
     std::string ext = getFileExtension(safe_path);
@@ -171,7 +172,8 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
     }
     else
     {
-        std::ifstream error_file("./www/html/404.html", std::ios::binary);
+        std::string not_found_path = g.root + "/404.html";
+        std::ifstream error_file(not_found_path.c_str(), std::ios::binary);
         HttpResponse response(HttpResponse::NOT_FOUND);
 
         if (error_file.is_open())
