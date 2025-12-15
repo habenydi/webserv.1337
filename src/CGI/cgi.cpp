@@ -9,7 +9,7 @@ void	CGI::setEnv(std::string& file)
 		return;
 	}
 	setenv("REQUEST_METHOD", _req.method.c_str(), 1);
-	setenv("SCRIPT_NAME", _req.path.c_str(), 1);  // Changed from file.c_str() to _req.path.c_str()
+	setenv("SCRIPT_NAME", _req.path.c_str(), 1);
 	setenv("QUERY_STRING", _req.query_string.c_str(), 1);
 	if (_req.headers.find("Content-Length") != _req.headers.end())
 		setenv("CONTENT_LENGTH", _req.headers.find("Content-Length")->second.c_str(), 1);
@@ -27,12 +27,12 @@ CGI::CGI(std::string root, HttpRequest req) : _req(req), _root(root) {}
 void	CGI::run(std::string interpreter, std::string file, std::string input)
 {
 	int	fd[2];
-	int	ifd[2];
+	int	pfd[2];
 	int	status;
 
 	
 	if (_req.IsPOST)
-		if (pipe(ifd) == -1)
+		if (pipe(pfd) == -1)
 		{
 			std::cerr << "[ERROR] pipe fails" << std::endl;
 			return ;
@@ -41,8 +41,8 @@ void	CGI::run(std::string interpreter, std::string file, std::string input)
 	{
 		std::cerr << "[ERROR] pipe fails" << std::endl;
 		if (_req.IsPOST) {
-			close(ifd[0]);
-			close(ifd[1]);
+			close(pfd[0]);
+			close(pfd[1]);
 		}
 		return ;
 	}
@@ -54,8 +54,8 @@ void	CGI::run(std::string interpreter, std::string file, std::string input)
 		close(fd[0]);
 		close(fd[1]);
 		if (_req.IsPOST) {
-			close(ifd[0]);
-			close(ifd[1]);
+			close(pfd[0]);
+			close(pfd[1]);
 		}
 		return ;
 	}else if (pid == 0)
@@ -63,9 +63,9 @@ void	CGI::run(std::string interpreter, std::string file, std::string input)
 		setEnv(file);
 		if (_req.IsPOST)
 		{
-			dup2(ifd[0], 0);
-			close(ifd[1]);
-			close(ifd[0]);
+			dup2(pfd[0], 0);
+			close(pfd[1]);
+			close(pfd[0]);
 		}
 		dup2(fd[1], 1);
 		close(fd[1]);
@@ -83,36 +83,35 @@ void	CGI::run(std::string interpreter, std::string file, std::string input)
 
 	/////////////////////////////////////
 	if (_req.IsPOST) {
-		close(ifd[0]); // Close read end of input pipe
-		ssize_t written = write(ifd[1], input.c_str(), input.length());
+		close(pfd[0]);
+		ssize_t written = write(pfd[1], input.c_str(), input.length());
 		if (written != (ssize_t)input.length())
 		    std::cerr << "[WARNING] incomplete write to CGI stdin" << std::endl;
-		close(ifd[1]);
+		close(pfd[1]);
 	}
     
 	output.clear();
 	char buffer[4096];
 	ssize_t bytesRead;
 
-	while ((bytesRead = read(fd[0], buffer, sizeof(buffer))) > 0) {
-	output.append(buffer, bytesRead);
-	}
+	while ((bytesRead = read(fd[0], buffer, sizeof(buffer))) > 0) 
+		output.append(buffer, bytesRead);
 
 	close(fd[0]);
 
 	// Wait for child process
 	if (waitpid(pid, &status, 0) == -1) {
-	std::cerr << "[ERROR] waitpid failed: " << strerror(errno) << std::endl;
-	return;
+		std::cerr << "[ERROR] waitpid failed: " << strerror(errno) << std::endl;
+		return;
 	}
 
 	if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
-	std::cerr << "[WARNING] CGI script exited with status " 
+		std::cerr << "[WARNING] CGI script exited with status " 
 		  << WEXITSTATUS(status) << std::endl;
 	} else if (WIFSIGNALED(status)) {
-	std::cerr << "[ERROR] CGI script terminated by signal " 
+		std::cerr << "[ERROR] CGI script terminated by signal " 
 		  << WTERMSIG(status) << std::endl;
 	}
 
-	std::cout << "\n[DEBUG] CGI Output:\n" << output << std::endl;
+	//std::cout << "\n[DEBUG] CGI Output:\n" << output << std::endl;
 }
