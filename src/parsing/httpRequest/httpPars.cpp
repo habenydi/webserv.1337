@@ -50,25 +50,6 @@ bool	httpPars::splitHeader(std::string& result)
 		}
 		request.headers[key] = value;
 	}
-	
-	// Debug: print parsed headers
-	std::map<std::string, std::string>::iterator it;
-	for (it = request.headers.begin(); it != request.headers.end(); ++it)
-	{
-		std::cout << '"' << it->first << '"' 
-				<< " <---> "
-				<< '"' << it->second << '"' 
-				<< std::endl;
-	}
-	std::cout << "\n\n Cookeis\n\n";
-	for (it = request.cookies.begin(); it != request.cookies.end(); ++it)
-	{
-		std::cout << '"' << it->first << '"' 
-				<< " <---> "
-				<< '"' << it->second << '"' 
-				<< std::endl;
-	}
-	
 	return true;
 }
 
