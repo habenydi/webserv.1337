@@ -4,10 +4,10 @@ void	Server::run()
 {
 	for (size_t i = 0; i < config.size(); i++) {
 		for (size_t j = 0; j < config[i].port.size(); j++) {
-			sock	awdi;
-			awdi.port = config[i].port[j];
-			awdi.conf = config[i];
-			socks.push_back(awdi);
+			sock	socket;
+			socket.port = config[i].port[j];
+			socket.conf = config[i];
+			socks.push_back(socket);
 		}
 	}
 	std::cout << "[DEBUG] socks size: " << socks.size() << std::endl;
@@ -17,12 +17,18 @@ void	Server::run()
 	epoll_loop();
 }
 
-int set_nonblocking(int fd) {
+
+
+
+int set_nonBlocking(int fd) {
     int flags = fcntl(fd, F_GETFL, 0);
     if (flags == -1)
         return -1;
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
+
+
+
 
 int	Server::init_sock(size_t i)
 {
@@ -35,13 +41,13 @@ int	Server::init_sock(size_t i)
 
 	int opt = 1;
 	setsockopt(socks[i].sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)); // for "Address already in use" problem
-	set_nonblocking(socks[i].sockfd);
+	set_nonBlocking(socks[i].sockfd);
 
 	struct sockaddr_in baddr;
 	memset(&baddr, 0, sizeof(baddr));
 	baddr.sin_family = AF_INET;
 	baddr.sin_port = htons(socks[i].port);
-	baddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	baddr.sin_addr.s_addr = htonl(INADDR_ANY); // TODO: turn this INADDR_ANY to the host ip.. so socks[i].conf.host
 	if (bind(socks[i].sockfd, (struct sockaddr*)&baddr, sizeof(baddr)))
 	{
 		std::cerr << "[Error] bind fails" << std::endl;
@@ -56,12 +62,15 @@ int	Server::init_sock(size_t i)
 	return 0;
 }
 
+
+
+
 void	Server::accept_client(int sockfd, globale& conf)
 {
 	int client_fd = accept(sockfd, NULL, NULL);
 	client_config[client_fd] = conf;
 	if (client_fd != -1) {
-                set_nonblocking(client_fd);
+                set_nonBlocking(client_fd);
 
                 struct epoll_event ev;
                 ev.events = EPOLLIN | EPOLLRDHUP;
