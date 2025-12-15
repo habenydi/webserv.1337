@@ -7,11 +7,15 @@ std::string to_string98(size_t n)
     return oss.str();
 }
 
+
+
 void	Server::closeClient(int fd)
 {
 	epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
 	close(fd);
 }
+
+
 
 void	Server::_recv(int fd)
 {
@@ -26,11 +30,18 @@ void	Server::_recv(int fd)
 	parsing.RequestPars(request, client_config[fd]);
 }
 
+
+
+
 void	Server::_send(Client& client)
 {
-	std::string	respons = parsing.response;// will come from parser
+	ssize_t byts;
+	std::string	&respons = parsing.response;
 
-	ssize_t byts = send(client.fd, respons.c_str() + client.offset, respons.length() - client.offset, MSG_NOSIGNAL);
+	if (respons.size() - client.offset > 125000) // 1MB
+		byts = send(client.fd, respons.c_str() + client.offset, 125000, MSG_NOSIGNAL);
+	else
+		byts = send(client.fd, respons.c_str() + client.offset, respons.size() - client.offset, MSG_NOSIGNAL);
 
 	if (byts <= 0)
 	{
@@ -39,6 +50,6 @@ void	Server::_send(Client& client)
 	}
 
 	client.offset += byts;
-	if (client.offset >= respons.length())
+	if (client.offset >= respons.size())
 		closeClient(client.fd);
 }
