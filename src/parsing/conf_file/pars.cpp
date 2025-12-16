@@ -251,16 +251,16 @@ void	pars::defaultConfigue(globale& data)
 		data.error_page[500] = "./www/errors/500.html";
 	if (data.mimetype.empty())
 	{
-		data.mimetype.insert(std::make_pair(std::string("html"),std::string("text/html")));
-		data.mimetype.insert(std::make_pair(std::string("htm"),std::string("text/html")));
-		data.mimetype.insert(std::make_pair(std::string("css"),std::string("text/css")));
-		data.mimetype.insert(std::make_pair(std::string("js"),std::string("application/javascript")));
-		data.mimetype.insert(std::make_pair(std::string("json"),std::string("application/json")));
-		data.mimetype.insert(std::make_pair(std::string("png"),std::string("image/png")));
-		data.mimetype.insert(std::make_pair(std::string("jpg"),std::string("image/jpeg")));
-		data.mimetype.insert(std::make_pair(std::string("jpeg"),std::string("image/jpeg")));
-		data.mimetype.insert(std::make_pair(std::string("gif"),std::string("image/gif")));
-		data.mimetype.insert(std::make_pair(std::string("txt"),std::string("text/plain")));
+		data.mimetype["html"] = "text/html";
+		data.mimetype["htm"] = "text/html";
+		data.mimetype["css"] = "text/css";
+		data.mimetype["js"] = "application/javascript";
+		data.mimetype["json"] = "application/json";
+		data.mimetype["png"] = "image/png";
+		data.mimetype["jpg"] = "image/jpeg";
+		data.mimetype["jpeg"] = "image/jpeg";
+		data.mimetype["gif"] = "image/gif";
+		data.mimetype["txt"] = "text/plain";
 	}
 }
 
@@ -276,12 +276,16 @@ void	pars::filloutTypes(globale& data)
 		key = i;
 		while (i < tokens.size() && tokens[i] != ";")
 		{
-			data.mimetype.insert(std::make_pair(tokens[key], tokens[i]));
+			data.mimetype[tokens[i]] = tokens[key];
 			i++;
-		}	
+		}
+	}
+	std::map<std::string, std::string>::iterator it = data.mimetype.begin();
+	for (; it != data.mimetype.end(); it++)
+	{
+		std::cout << it->first << " <----> " << it->second << std::endl;
 	}
 }
-
 void pars::ParsTokens(std::vector<std::string> tokens)
 {
 	bool	Mime = false;

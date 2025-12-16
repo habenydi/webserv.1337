@@ -267,7 +267,7 @@ std::string RequestHandler::getContentType(const std::string &file_path, globale
 
 	std::string ext = file_path.substr(dot_pos + 1);
 
-	std::multimap<std::string, std::string>::iterator it = conf.mimetype.find(ext);
+	std::map<std::string, std::string>::iterator it = conf.mimetype.find(ext);
 	if (it != conf.mimetype.end())
 		return it->second;
 

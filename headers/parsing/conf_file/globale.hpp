@@ -49,7 +49,7 @@ class globale
 		std::map<int, std::string> error_page;
 		std::vector<LocationConfig> location;
 		std::map<std::string , std::string> interpreters;
-		std::multimap<std::string, std::string>  mimetype;
+		std::map<std::string, std::string>  mimetype;
 		// Constructor: initialize all members
 		globale()
 			: port(), host(), server_name(), path(), root(),
