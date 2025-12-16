@@ -1,8 +1,5 @@
 #include "../include.hpp"
 
-const char* SigInt::what() const throw()
-{return "the server is terminated with SIGINT.. \n bye.";}
-
 void	Server::recvRq(Client& client)
 {
 	try{

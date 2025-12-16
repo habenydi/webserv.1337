@@ -3,6 +3,9 @@
 std::vector<globale> config;
 char	**env;
 
+const char* SigInt::what() const throw()
+{return "\nthe server is terminated with SIGINT.. \n bye.";}
+
 void	sigIntHandl(int sig)
 {
 	if (sig != SIGINT)
