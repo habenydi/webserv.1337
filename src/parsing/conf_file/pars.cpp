@@ -249,20 +249,64 @@ void	pars::defaultConfigue(globale& data)
 		data.error_page[404] = "./www/errors/404.html";
 	if (data.error_page.find(500) == data.error_page.end())
 		data.error_page[500] = "./www/errors/500.html";
+	if (data.mimetype.empty())
+	{
+		data.mimetype.insert(std::make_pair(std::string("html"),std::string("text/html")));
+		data.mimetype.insert(std::make_pair(std::string("htm"),std::string("text/html")));
+		data.mimetype.insert(std::make_pair(std::string("css"),std::string("text/css")));
+		data.mimetype.insert(std::make_pair(std::string("js"),std::string("application/javascript")));
+		data.mimetype.insert(std::make_pair(std::string("json"),std::string("application/json")));
+		data.mimetype.insert(std::make_pair(std::string("png"),std::string("image/png")));
+		data.mimetype.insert(std::make_pair(std::string("jpg"),std::string("image/jpeg")));
+		data.mimetype.insert(std::make_pair(std::string("jpeg"),std::string("image/jpeg")));
+		data.mimetype.insert(std::make_pair(std::string("gif"),std::string("image/gif")));
+		data.mimetype.insert(std::make_pair(std::string("txt"),std::string("text/plain")));
+	}
+}
+
+void	pars::filloutTypes(globale& data)
+{
+	std::string filename = "mime.types";
+	std::string	content;
+	ReadFromFile(filename, content);
+	std::vector<std::string>	tokens = Tokenizer(content);
+	int	key = 0;
+	for (size_t i = 0; i < tokens.size(); i++)
+	{
+		key = i;
+		while (i < tokens.size() && tokens[i] != ";")
+		{
+			data.mimetype.insert(std::make_pair(tokens[key], tokens[i]));
+			i++;
+		}	
+	}
 }
 
 void pars::ParsTokens(std::vector<std::string> tokens)
 {
+	bool	Mime = false;
 	for (size_t i = 0; i < tokens.size(); i++)
 	{
 		if (tokens[i] == "server")
 		{
 			if (tokens[++i] != "{")
 				throw std::runtime_error("Expect { after server");
-			data.push_back(globale());	
+			data.push_back(globale());
 			ParseServerBlock(tokens, i);
+			if (Mime && data[Index].mimetype.empty())
+			{
+				filloutTypes(data[Index]);
+			}
 			defaultConfigue(data[Index]);
 			Index++;
+		}
+		else if(tokens[i] == "include")
+		{
+			if (tokens[i + 1] == "mime.types")
+			{
+				Mime = true;
+				i += 1;
+			}
 		}
 		else
 			throw std::runtime_error("Unknow Block\n" + tokens[i]);

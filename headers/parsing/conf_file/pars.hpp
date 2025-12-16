@@ -19,4 +19,5 @@ class pars
 		void	ParseServerBlock(std::vector <std::string>& token, size_t& index);
 		void	ParseLocationBlock(std::vector<std::string>& token, size_t& index);
 		void	defaultConfigue(globale& data);
+		void	filloutTypes(globale& data);
 };

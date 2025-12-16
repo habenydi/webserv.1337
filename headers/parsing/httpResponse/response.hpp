@@ -39,7 +39,7 @@ private:
     static HttpResponse handleGetRequest(const HttpRequest& request);
     static HttpResponse handlePostRequest(const HttpRequest& request);
     static std::string sanitizePath(const std::string& path);
-    static std::string getContentType(const std::string& file_path);
+    static std::string getContentType(const std::string& file_path, globale& conf);
 };
 
 std::string generateResponse(const HttpRequest& request);

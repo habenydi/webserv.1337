@@ -12,12 +12,26 @@ struct LocationConfig
 	std::string cgi_extension;
 	std::vector<std::string> index;
 	std::string cgi_pass;
-
 	// Constructor: initialize all members
 	LocationConfig()
 		: path(), root(), autoindex(false), allowed_methods(),
 		  upload_store(), cgi_extension(), index(), cgi_pass()
 	{
+	}
+	LocationConfig&	operator=(const LocationConfig& other)
+	{
+		if (this != &other)
+		{
+			this->path = other.path;
+			this->root = other.root;
+			this->autoindex = other.autoindex;
+			this->allowed_methods = other.allowed_methods;
+			this->upload_store = other.upload_store;
+			this->cgi_extension = other.cgi_extension;
+			this->index = other.index;
+			this->cgi_pass = other.cgi_pass;
+		}
+		return *this;
 	}
 };
 
@@ -35,12 +49,12 @@ class globale
 		std::map<int, std::string> error_page;
 		std::vector<LocationConfig> location;
 		std::map<std::string , std::string> interpreters;
-
+		std::multimap<std::string, std::string>  mimetype;
 		// Constructor: initialize all members
 		globale()
 			: port(), host(), server_name(), path(), root(),
 			max_client_size(0), autoindex(false), index(),
-			error_page(), location()
+			error_page(), location(), mimetype()
 		{
 		}
 
@@ -59,6 +73,7 @@ class globale
 				this->server_name = other.server_name;
 				this->max_client_size = other.max_client_size;
 				this->interpreters = other.interpreters;
+				this->mimetype = other.mimetype;
 			}
 			return (*this);
 		}
