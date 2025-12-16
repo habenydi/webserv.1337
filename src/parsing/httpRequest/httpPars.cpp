@@ -21,10 +21,15 @@ bool	httpPars::splitHeader(std::string& result)
 	// Parse the first line (request line): METHOD PATH VERSION
 	std::istringstream first(lines[0]);
 	first >> request.method >> request.path >> request.version;
-	
 	if (request.path.empty() || request.method.empty() || request.version.empty()) return false;
 	if (request.version == "HTTP/1.1")
 		request.version = "HTTP/1.0";
+	for (size_t i = 0; i < request.conf.location.size(); i++)
+	{
+		if (request.path == request.conf.location[i].path)
+			request.conf.root = request.conf.location[i].root;
+	}
+	std::cout << "\n\n\n"<< request.path << std::endl;
 	if (request.method == "POST")
 		request.IsPOST = true;
 	
