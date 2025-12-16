@@ -4,7 +4,7 @@ void pars::ReadFromFile(std::string &filename, std::string &content)
 {
 	std::ifstream input(filename.c_str());
 	if (!input.is_open())
-		throw std::runtime_error("Can't open the conf file");
+		throw std::runtime_error("Can't open the conf file" + filename);
 	std::string line;
 	while (std::getline(input, line))
 	{
@@ -226,7 +226,7 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 	}
 }
 
-void	defaultConfigue(globale& data)
+void	pars::defaultConfigue(globale& data)
 {
 	if (data.port.empty())
 		data.port.push_back(8080);
@@ -237,7 +237,7 @@ void	defaultConfigue(globale& data)
 	if (data.root.empty())
 		data.root = "./www";
 	if (data.index.empty())
-		data.index = "index.html";
+		data.index = "html/index.html";
 	if (data.max_client_size == 0)
 		data.max_client_size = 1024 * 1024;
 	// Error Page

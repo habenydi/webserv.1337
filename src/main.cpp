@@ -13,15 +13,16 @@ void	sigIntHandl(int sig)
 int	main(int ac, char **av, char **menv)
 {
 	env = menv;
-	if (ac != 2)
-	{
-		std::cerr << "Usage: ./webserv <conf file>" << std::endl;
-		return 1;
-	}
 	signal(SIGINT, sigIntHandl);
 	try {
 		pars prs;
-		prs.parsing(av[1], config);
+		config.push_back(globale());
+		if (ac >= 2)
+			prs.parsing(av[1], config);
+		else
+		{
+			prs.parsing("config/Default.conf", config);
+		}
 		Server server;
 		server.run();
 	}catch (std::exception& e)

@@ -23,43 +23,43 @@ struct LocationConfig
 
 class globale
 {
-public:
-	std::vector<int> port;
-	std::string host;
-	std::string server_name;
-	std::string path;
-	std::string root;
-	unsigned long max_client_size;
-	bool autoindex;
-	std::string index;
-	std::map<int, std::string> error_page;
-	std::vector<LocationConfig> location;
-	std::map<std::string , std::string> interpreters;
+	public:
+		std::vector<int> port;
+		std::string host;
+		std::string server_name;
+		std::string path;
+		std::string root;
+		unsigned long max_client_size;
+		bool autoindex;
+		std::string index;
+		std::map<int, std::string> error_page;
+		std::vector<LocationConfig> location;
+		std::map<std::string , std::string> interpreters;
 
-	// Constructor: initialize all members
-	globale()
-		: port(), host(), server_name(), path(), root(),
-		  max_client_size(0), autoindex(false), index(),
-		  error_page(), location()
-	{
-	}
-
-	globale &operator=(const globale &other)
-	{
-		if (this != &other)
+		// Constructor: initialize all members
+		globale()
+			: port(), host(), server_name(), path(), root(),
+			max_client_size(0), autoindex(false), index(),
+			error_page(), location()
 		{
-			this->path = other.path;
-			this->port = other.port;
-			this->host = other.host;
-			this->root = other.root;
-			this->autoindex = other.autoindex;
-			this->index = other.index;
-			this->error_page = other.error_page;
-			this->location = other.location;
-			this->server_name = other.server_name;
-			this->max_client_size = other.max_client_size;
-			this->interpreters = other.interpreters;
 		}
-		return (*this);
-	}
+
+		globale &operator=(const globale &other)
+		{
+			if (this != &other)
+			{
+				this->path = other.path;
+				this->port = other.port;
+				this->host = other.host;
+				this->root = other.root;
+				this->autoindex = other.autoindex;
+				this->index = other.index;
+				this->error_page = other.error_page;
+				this->location = other.location;
+				this->server_name = other.server_name;
+				this->max_client_size = other.max_client_size;
+				this->interpreters = other.interpreters;
+			}
+			return (*this);
+		}
 };
