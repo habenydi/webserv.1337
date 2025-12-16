@@ -226,6 +226,31 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 	}
 }
 
+void	defaultConfigue(globale& data)
+{
+	if (data.port.empty())
+		data.port.push_back(8080);
+	if (data.host.empty())
+		data.host = "0.0.0.0";
+	if (data.server_name.empty())
+		data.server_name = "127.0.0.1";
+	if (data.root.empty())
+		data.root = "./www";
+	if (data.index.empty())
+		data.index = "index.html";
+	if (data.max_client_size == 0)
+		data.max_client_size = 1024 * 1024;
+	// Error Page
+	if (data.error_page.find(400) == data.error_page.end())
+		data.error_page[400] = "./www/errors/400.html";
+	if (data.error_page.find(403) == data.error_page.end())
+		data.error_page[403] = "./www/errors/403.html";
+	if (data.error_page.find(404) == data.error_page.end())
+		data.error_page[404] = "./www/errors/404.html";
+	if (data.error_page.find(500) == data.error_page.end())
+		data.error_page[500] = "./www/errors/500.html";
+}
+
 void pars::ParsTokens(std::vector<std::string> tokens)
 {
 	for (size_t i = 0; i < tokens.size(); i++)
@@ -236,6 +261,7 @@ void pars::ParsTokens(std::vector<std::string> tokens)
 				throw std::runtime_error("Expect { after server");
 			data.push_back(globale());	
 			ParseServerBlock(tokens, i);
+			defaultConfigue(data[Index]);
 			Index++;
 		}
 		else
