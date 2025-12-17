@@ -121,12 +121,23 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 {
 	std::string safe_path = sanitizePath(request.path);
 	globale g = request.conf;
-
 	std::string index = "/" + g.index;
-	if (safe_path == "/")
-		safe_path = index;
-
-	std::string file_path = g.root + safe_path;
+	std::string file_path = "";
+	for (size_t i = 0; i < request.conf.location.size(); i++)
+	{
+		if (safe_path == request.conf.location[i].path)
+		{
+			if (safe_path == "/")
+				safe_path = index;
+			file_path = g.location[i].root + safe_path;
+		}
+	}
+	if (file_path.empty())
+	{
+		if (safe_path == "/")
+			safe_path = index;
+		file_path = g.root + safe_path;
+	}
 	std::string ext = getFileExtension(safe_path);
 
 	// Check if this is a CGI script

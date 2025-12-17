@@ -11,9 +11,9 @@ server {
         root ./;
         autoindex off;
     }
-    Cgi_Interpreter .py /usr/bin/python3
-    Cgi_Interpreter .pl /usr/bin/perl
-    Cgi_Interpreter .sh /usr/bin/sh
+    cgi_interpreter .py /usr/bin/python3
+    cgi_interpreter .pl /usr/bin/perl
+    cgi_interpreter .sh /usr/bin/sh
 }
 
 server {

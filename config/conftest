@@ -2,7 +2,7 @@ server {
     listen 8080;
     server_name localhost;
 
-    root ./www/html;
+    root ./www;
     index index.html;
     error_page 404 /404.html;
     client_max_body_size 1000000;
@@ -12,7 +12,7 @@ server {
         autoindex off;
     }
 
-    Cgi_Interpreter .py /usr/bin/python3
-    Cgi_Interpreter .pl /usr/bin/perl
-    Cgi_Interpreter .sh /usr/bin/sh
+    cgi_interpreter .py /usr/bin/python3
+    cgi_interpreter .pl /usr/bin/perl
+    cgi_interpreter .sh /usr/bin/sh
 }

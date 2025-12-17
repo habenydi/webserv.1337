@@ -212,7 +212,7 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 				throw std::runtime_error("Error: missing value after 'server_name'");
 			data[Index].server_name = token[++index];
 		}
-		else if (token[index] == "Cgi_Interpreter")
+		else if (token[index] == "cgi_interpreter")
 		{
 			if (index + 2 >= token.size())
 				throw std::runtime_error("Error: missing cgi-interpreter values");
@@ -286,6 +286,7 @@ void	pars::filloutTypes(globale& data)
 		std::cout << it->first << " <----> " << it->second << std::endl;
 	}
 }
+
 void pars::ParsTokens(std::vector<std::string> tokens)
 {
 	bool	Mime = false;
