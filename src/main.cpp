@@ -23,11 +23,13 @@ int	main(int ac, char **av, char **menv)
 		if (ac >= 2)
 			prs.parsing(av[1], config);
 		else
-		{
 			prs.parsing("config/Default.conf", config);
-		}
 		Server server;
 		server.run();
+	}catch (SigInt& e)
+	{
+		std::cout << "\033[38;2;255;153;51m\n[WARNING]" << e.what() << "\033[0m" << std::endl;
+		return 0;
 	}catch (std::exception& e)
 	{
 		std::cerr << "[ERROR] " << e.what() << std::endl;
