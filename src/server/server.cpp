@@ -1,4 +1,7 @@
 #include "../include.hpp"
+#include <cstring>
+#include <iostream>
+#include <ostream>
 
 void	Server::run()
 {
@@ -47,16 +50,18 @@ int	Server::init_sock(size_t i)
 	memset(&baddr, 0, sizeof(baddr));
 	baddr.sin_family = AF_INET;
 	baddr.sin_port = htons(socks[i].port);
-	baddr.sin_addr.s_addr = htonl(INADDR_ANY); // TODO: turn this INADDR_ANY to the host ip.. so socks[i].conf.host
+//	std::cout << "[DEBUG] lIP : " << socks[i].conf.host << std::endl;
+//	std::cout << "[DEBUG] linet_addr : " << inet_addr(socks[i].conf.host.c_str()) << std::endl;
+	baddr.sin_addr.s_addr = inet_addr(socks[i].conf.host.c_str()); // TODO: turn this INADDR_ANY to the host ip.. so socks[i].conf.host
 	if (bind(socks[i].sockfd, (struct sockaddr*)&baddr, sizeof(baddr)))
 	{
-		std::cerr << "[Error] bind fails" << std::endl;
+		std::cerr << "[Error] bind fails: " << strerror(errno) << std::endl;
 		return -1;
 	}
 
 	if (listen(socks[i].sockfd, 10))
 	{
-		std::cerr << "[Error] listen fails" << std::endl;
+		std::cerr << "[Error] listen fails: "  << strerror(errno) << std::endl;
 		return -1;
 	}
 	return 0;

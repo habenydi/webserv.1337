@@ -17,6 +17,8 @@ void	Server::recvRq(Client& client)
 	epoll_ctl(epfd, EPOLL_CTL_MOD, client.fd, &(client.ev));
 }
 
+
+
 void	Server::epoll_init()
 {
 	epfd = epoll_create(1);
@@ -36,9 +38,7 @@ void	Server::epoll_init()
 }
 
 
-//void	signals()
-//{
-//}
+
 
 void	Server::epoll_loop()
 {

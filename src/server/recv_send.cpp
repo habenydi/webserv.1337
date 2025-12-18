@@ -52,7 +52,6 @@ void	Server::_send(Client& client)
 	if (read(body, buff, 125000))
 	{
 		byts = send(client.fd, buff + client.offset, std::string(buff).size(), MSG_NOSIGNAL);
-//			byts = send(client.fd, respons.c_str() + client.offset, respons.size() - client.offset, MSG_NOSIGNAL);
 
 		if (byts <= 0)
 		{
@@ -65,6 +64,4 @@ void	Server::_send(Client& client)
 		send(client.fd, "\r\n", 2, MSG_NOSIGNAL);
 		closeClient(client.fd);
 	}
-
-	//if (client.offset >= header.size())
 }
