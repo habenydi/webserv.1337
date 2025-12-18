@@ -9,7 +9,7 @@ static std::string size_to_string(size_t n)
 	return oss.str();
 }
 
-HttpResponse::HttpResponse(StatusCode status) : status_code(status), file_fd(-1)
+HttpResponse::HttpResponse(StatusCode status) : file_fd(-1) , status_code(status)
 {
 	headers["Content-Type"] = "text/html";
 	headers["Connection"] = "close";

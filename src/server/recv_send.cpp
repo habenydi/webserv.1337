@@ -1,4 +1,5 @@
 #include "../include.hpp"
+#include <string>
 
 std::string to_string98(size_t n)
 {
@@ -35,21 +36,35 @@ void	Server::_recv(int fd)
 
 void	Server::_send(Client& client)
 {
-	ssize_t byts;
-	std::string	&respons = parsing.response;
+	ssize_t		byts = 0;
+	bool		f = 0;
+	char		buff[125000];
+	int		body = parsing.response.fd;
+	std::string	&header = parsing.response.header;
 
-	if (respons.size() - client.offset > 125000) // 1MB
-		byts = send(client.fd, respons.c_str() + client.offset, 125000, MSG_NOSIGNAL);
-	else
-		byts = send(client.fd, respons.c_str() + client.offset, respons.size() - client.offset, MSG_NOSIGNAL);
-
-	if (byts <= 0)
-	{
-		closeClient(client.fd);
-		return ;
-	}
+	if (!f)
+		byts = send(client.fd, header.c_str() + client.offset, header.size() - client.offset, MSG_NOSIGNAL);
 
 	client.offset += byts;
-	if (client.offset >= respons.size())
+	if (client.offset >= header.size()) { f = 1; client.offset = 0; }
+
+
+	if (read(body, buff, 125000))
+	{
+		byts = send(client.fd, buff + client.offset, std::string(buff).size(), MSG_NOSIGNAL);
+//			byts = send(client.fd, respons.c_str() + client.offset, respons.size() - client.offset, MSG_NOSIGNAL);
+
+		if (byts <= 0)
+		{
+			closeClient(client.fd);
+			return ;
+		}
+		client.offset += byts;
+	} else
+	{
+		send(client.fd, "\r\n", 2, MSG_NOSIGNAL);
 		closeClient(client.fd);
+	}
+
+	//if (client.offset >= header.size())
 }
