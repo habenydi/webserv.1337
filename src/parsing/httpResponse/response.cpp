@@ -9,7 +9,7 @@ static std::string size_to_string(size_t n)
 	return oss.str();
 }
 
-HttpResponse::HttpResponse(StatusCode status) : status_code(status)
+HttpResponse::HttpResponse(StatusCode status) : status_code(status), file_fd(-1)
 {
 	headers["Content-Type"] = "text/html";
 	headers["Connection"] = "close";
@@ -65,6 +65,22 @@ std::string HttpResponse::toString() const
 	if (!body.empty())
 		response << body;
 
+	return response.str();
+}
+
+// ADD THIS NEW METHOD
+std::string HttpResponse::toStringHeadersOnly() const
+{
+	std::ostringstream response;
+	response << "HTTP/1.1 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
+
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin();
+		 it != headers.end(); ++it)
+	{
+		response << it->first << ": " << it->second << "\r\n";
+	}
+
+	response << "\r\n";
 	return response.str();
 }
 
@@ -168,40 +184,42 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 		return response;
 	}
 
-	std::ifstream file(file_path.c_str(), std::ios::binary);
-	if (file.is_open())
+	int fd = open(file_path.c_str(), O_RDONLY);
+	if (fd != -1)
 	{
-		std::string content((std::istreambuf_iterator<char>(file)),
-							std::istreambuf_iterator<char>());
-		file.close();
+		struct stat file_stat;
+		if (fstat(fd, &file_stat) == 0)
+		{
+			HttpResponse response(HttpResponse::OK);
+			std::string content_type = getContentType(file_path, g);
+			response.setHeader("Content-Type", content_type);
+			response.setHeader("Content-Length", size_to_string(file_stat.st_size));
 
-		HttpResponse response(HttpResponse::OK);
-		std::string content_type = getContentType(file_path, g);
-		response.setHeader("Content-Type", content_type);
-		response.setBody(content);
-		return response;
+			response.file_fd = fd;
+			return response;
+		}
+		close(fd);
+	}
+
+	// 404 error handling
+	std::string not_found_path = g.root + g.error_page[404];
+	std::ifstream error_file(not_found_path.c_str(), std::ios::binary);
+	HttpResponse response(HttpResponse::NOT_FOUND);
+
+	if (error_file.is_open())
+	{
+		std::string error_content((std::istreambuf_iterator<char>(error_file)),
+								  std::istreambuf_iterator<char>());
+		error_file.close();
+		response.setHeader("Content-Type", "text/html");
+		response.setBody(error_content);
 	}
 	else
 	{
-		std::string not_found_path = g.root + g.error_page[404];
-		std::ifstream error_file(not_found_path.c_str(), std::ios::binary);
-		HttpResponse response(HttpResponse::NOT_FOUND);
-
-		if (error_file.is_open())
-		{
-			std::string error_content((std::istreambuf_iterator<char>(error_file)),
-									  std::istreambuf_iterator<char>());
-			error_file.close();
-			response.setHeader("Content-Type", "text/html");
-			response.setBody(error_content);
-		}
-		else
-		{
-			response.setBody("<html><body><h1>404 Not Found</h1><p>File: " + request.path + "</p></body></html>");
-		}
-
-		return response;
+		response.setBody("<html><body><h1>404 Not Found</h1><p>File: " + request.path + "</p></body></html>");
 	}
+
+	return response;
 }
 
 HttpResponse RequestHandler::handlePostRequest(const HttpRequest &request)
@@ -270,7 +288,7 @@ std::string RequestHandler::sanitizePath(const std::string &path)
 	return sanitized;
 }
 
-std::string RequestHandler::getContentType(const std::string &file_path, globale& conf)
+std::string RequestHandler::getContentType(const std::string &file_path, globale &conf)
 {
 	size_t dot_pos = file_path.find_last_of('.');
 	if (dot_pos == std::string::npos)
@@ -285,8 +303,22 @@ std::string RequestHandler::getContentType(const std::string &file_path, globale
 	return "application/octet-stream";
 }
 
-std::string generateResponse(const HttpRequest &request)
+Response generateResponse(const HttpRequest &request)
 {
+	Response res;
 	HttpResponse response = RequestHandler::handleRequest(request);
-	return response.toString();
+
+	// If response has a file descriptor, return only headers
+	if (response.file_fd != -1)
+	{
+		res.header = response.toStringHeadersOnly();
+		res.fd = response.file_fd;
+	}
+	else
+	{
+		res.header = response.toString();
+		res.fd = -1;
+	}
+
+	return res;
 }
