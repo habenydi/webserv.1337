@@ -8,16 +8,12 @@ struct LocationConfig
 	std::string root;
 	bool autoindex;
 	std::vector<std::string> allowed_methods;
-	std::string upload_store;
 	std::string cgi_extension;
-	std::vector<std::string> index;
-	std::string cgi_pass;
 	// Constructor: initialize all members
 	LocationConfig()
 		: path(), root(), autoindex(false), allowed_methods(),
-		  upload_store(), cgi_extension(), index(), cgi_pass()
-	{
-	}
+		  cgi_extension()
+	{}
 	LocationConfig&	operator=(const LocationConfig& other)
 	{
 		if (this != &other)
@@ -26,10 +22,7 @@ struct LocationConfig
 			this->root = other.root;
 			this->autoindex = other.autoindex;
 			this->allowed_methods = other.allowed_methods;
-			this->upload_store = other.upload_store;
 			this->cgi_extension = other.cgi_extension;
-			this->index = other.index;
-			this->cgi_pass = other.cgi_pass;
 		}
 		return *this;
 	}
@@ -55,9 +48,7 @@ class globale
 			: port(), host(), server_name(), path(), root(),
 			max_client_size(0), autoindex(false), index(),
 			error_page(), location(), mimetype()
-		{
-		}
-
+		{}
 		globale &operator=(const globale &other)
 		{
 			if (this != &other)
