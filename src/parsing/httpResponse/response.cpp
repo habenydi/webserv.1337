@@ -49,7 +49,7 @@ std::string HttpResponse::toString() const
 	std::ostringstream response;
 	if (!headers.empty())
 	{
-		response << "HTTP/1.1 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
+		response << "HTTP/1.0 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
 
 		for (std::map<std::string, std::string>::const_iterator it = headers.begin();
 			 it != headers.end(); ++it)
@@ -60,7 +60,7 @@ std::string HttpResponse::toString() const
 		response << "\r\n";
 	}
 	else
-		response << "HTTP/1.1 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
+		response << "HTTP/1.0 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
 
 	if (!body.empty())
 		response << body;
@@ -72,7 +72,7 @@ std::string HttpResponse::toString() const
 std::string HttpResponse::toStringHeadersOnly() const
 {
 	std::ostringstream response;
-	response << "HTTP/1.1 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
+	response << "HTTP/1.0 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
 
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin();
 		 it != headers.end(); ++it)
