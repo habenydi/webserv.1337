@@ -107,6 +107,9 @@ std::string HttpResponse::getReasonPhrase(StatusCode code) const
 
 HttpResponse RequestHandler::handleRequest(const HttpRequest &request)
 {
+	std::cout << "Method: "<< request.method <<  "size --" << std::endl;
+	std::cout << "Version: " << request.version <<std::endl;
+	std::cout << "Path: "<< request.path <<std::endl;	
 	if (request.version != "HTTP/1.0")
 	{
 		HttpResponse response(HttpResponse::BAD_REQUEST);

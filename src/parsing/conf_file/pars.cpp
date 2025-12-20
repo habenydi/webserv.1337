@@ -255,11 +255,6 @@ void	pars::filloutTypes(globale& data)
 			i++;
 		}
 	}
-	std::map<std::string, std::string>::iterator it = data.mimetype.begin();
-	for (; it != data.mimetype.end(); it++)
-	{
-		std::cout << it->first << " <----> " << it->second << std::endl;
-	}
 }
 
 void pars::ParsTokens(std::vector<std::string> tokens)

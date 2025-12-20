@@ -91,8 +91,23 @@ void	httpPars::FindFilename(HttpRequest& request)
 	}
 }
 
+void	httpPars::clear_obj()
+{
+	request.method.clear();
+	request.body.clear();
+	request.form_data.clear();
+	request.headers.clear();
+	request.IsPOST = false;
+	request.version.clear();
+	request.raw_body.clear();
+	request.query_string.clear();
+	request.path.clear();
+	request.cookies.clear();
+}
+
 bool	httpPars::RequestPars(std::string& buffer, globale& configue)
 {
+	clear_obj();
 	this->request.conf = configue;
 	request.IsPOST = false;
 	size_t header_end = buffer.find("\r\n\r\n");

@@ -42,6 +42,7 @@ private:
 	void FindFilename(HttpRequest &request);
 	void RegularBody(std::string &buffer);
 	void StoreCookies(std::string &lines);
+	void	clear_obj();
 
 public:
 	HttpRequest request;
