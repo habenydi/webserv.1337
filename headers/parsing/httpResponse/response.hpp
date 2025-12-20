@@ -15,7 +15,8 @@ public:
         INTERNAL_SERVER_ERROR = 500,
         BAD_REQUEST = 400,
         METHOD_NOT_ALLOWED = 405,
-        FOUND = 302
+        FOUND = 302,
+        FORBIDDEN = 403
     };
 
     HttpResponse(StatusCode status = OK);
@@ -48,6 +49,7 @@ private:
     static std::string sanitizePath(const std::string &path);
     static std::string getContentType(const std::string &file_path, globale &conf);
     static HttpResponse handleCGI(const HttpRequest &request, const std::string &safe_path, const std::string &ext, globale &g);
+    static HttpResponse handleDeleteRequest(const HttpRequest &request);
 };
 
 Response generateResponse(const HttpRequest &request);

@@ -6,13 +6,13 @@ void creat_and_write(std::string& name, std::string& content)
 	if (name.empty())
 	{
 		std::ostringstream oss;
-		oss << "www/upload/" << "/File_" << std::time(NULL);
+		oss << "www/uploads/" << "/File_" << std::time(NULL);
 		filename = oss.str();
 	}
 	else
 	{
 		std::ostringstream oss;
-		oss << "www/upload/" << name;
+		oss << "www/uploads/" << name;
 		filename = oss.str();
 	}
 	int fd = open(filename.c_str(), O_CREAT | O_WRONLY, 0666);

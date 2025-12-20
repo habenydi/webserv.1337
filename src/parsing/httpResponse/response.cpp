@@ -90,6 +90,8 @@ std::string HttpResponse::getReasonPhrase(StatusCode code) const
 	{
 	case OK:
 		return "OK";
+	case FORBIDDEN:
+		return "Forbidden";
 	case NOT_FOUND:
 		return "Not Found";
 	case INTERNAL_SERVER_ERROR:
@@ -105,11 +107,38 @@ std::string HttpResponse::getReasonPhrase(StatusCode code) const
 	}
 }
 
+HttpResponse RequestHandler::handleDeleteRequest(const HttpRequest &request)
+{
+	std::string safe_path = sanitizePath(request.path);
+	globale g = request.conf;
+
+	// Only allow files inside /uploads
+	std::string uploads_dir = g.root + "/uploads";
+	std::string file_path = g.root + safe_path;
+
+	if (file_path.find(uploads_dir) != 0) // check path starts with uploads_dir
+	{
+		HttpResponse response(HttpResponse::FORBIDDEN);
+		response.setBody("<html><body><h1>403 Forbidden</h1></body></html>");
+		return response;
+	}
+
+	if (std::remove(file_path.c_str()) == 0)
+	{
+		HttpResponse response(HttpResponse::OK);
+		response.setBody("<html><body><h1>200 OK - File Deleted</h1></body></html>");
+		return response;
+	}
+	else
+	{
+		HttpResponse response(HttpResponse::NOT_FOUND);
+		response.setBody("<html><body><h1>404 Not Found - File Not Found</h1></body></html>");
+		return response;
+	}
+}
+
 HttpResponse RequestHandler::handleRequest(const HttpRequest &request)
 {
-	std::cout << "Method: " << request.method << "size --" << std::endl;
-	std::cout << "Version: " << request.version << std::endl;
-	std::cout << "Path: " << request.path << std::endl;
 	if (request.version != "HTTP/1.0")
 	{
 		HttpResponse response(HttpResponse::BAD_REQUEST);
@@ -120,6 +149,8 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest &request)
 		return handleGetRequest(request);
 	else if (request.method == "POST")
 		return handlePostRequest(request);
+	else if (request.method == "DELETE")
+		return handleDeleteRequest(request);
 	else
 	{
 		HttpResponse response(HttpResponse::METHOD_NOT_ALLOWED);
