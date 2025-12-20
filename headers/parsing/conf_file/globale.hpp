@@ -8,17 +8,21 @@ struct LocationConfig
 	std::string root;
 	bool autoindex;
 	std::vector<std::string> allowed_methods;
+	std::string upload_store;
 	std::string cgi_extension;
+	std::vector<std::string> index;
 	// Constructor: initialize all members
 	LocationConfig()
 		: path(), root(), autoindex(false), allowed_methods(),
-		  cgi_extension()
+			upload_store(), cgi_extension(), index()
 	{}
 	LocationConfig&	operator=(const LocationConfig& other)
 	{
 		if (this != &other)
 		{
 			this->path = other.path;
+			this->upload_store = other.upload_store;
+			this->index = other.index;
 			this->root = other.root;
 			this->autoindex = other.autoindex;
 			this->allowed_methods = other.allowed_methods;

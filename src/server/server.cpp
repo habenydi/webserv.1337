@@ -47,9 +47,7 @@ int	Server::init_sock(size_t i)
 	memset(&baddr, 0, sizeof(baddr));
 	baddr.sin_family = AF_INET;
 	baddr.sin_port = htons(socks[i].port);
-//	std::cout << "[DEBUG] lIP : " << socks[i].conf.host << std::endl;
-//	std::cout << "[DEBUG] linet_addr : " << inet_addr(socks[i].conf.host.c_str()) << std::endl;
-	baddr.sin_addr.s_addr = inet_addr(socks[i].conf.host.c_str()); // TODO: turn this INADDR_ANY to the host ip.. so socks[i].conf.host
+	baddr.sin_addr.s_addr = inet_addr(socks[i].conf.host.c_str());
 	if (bind(socks[i].sockfd, (struct sockaddr*)&baddr, sizeof(baddr)))
 	{
 		std::cerr << "[Error] bind fails: " << strerror(errno) << std::endl;

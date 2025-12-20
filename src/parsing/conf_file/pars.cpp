@@ -101,6 +101,25 @@ void pars::ParseLocationBlock(std::vector<std::string> &token, size_t &index)
 			if (index >= token.size() || token[index] != ";")
 				throw std::runtime_error("Error: missing ';' after 'allow_methods' in location");
 		}
+		else if (token[index] == "index")
+		{
+			++index;
+			if (index >= token.size())
+				throw std::runtime_error("Error: missing values after 'index'");
+			while (index < token.size() && token[index] != ";")
+			{
+				loc.index.push_back(token[index]);
+				++index;
+			}
+			if (index >= token.size() || token[index] != ";")
+				throw std::runtime_error("Error: missing ';' after 'index' in location");
+		}
+		else if (token[index] == "upload_store")
+		{
+			if (index + 1 >= token.size())
+				throw std::runtime_error("Error: missing value after 'upload_store'");
+			loc.upload_store = token[++index];
+		}
 		else if (token[index] == "autoindex")
 		{
 			if (index + 1 >= token.size())
