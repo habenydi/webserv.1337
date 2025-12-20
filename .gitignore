@@ -43,5 +43,6 @@ webserv
 
 # editors files
 .vscode/
+www/uploads/*
 BodyContent
 *.swp
