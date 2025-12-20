@@ -1,7 +1,4 @@
 #include "../include.hpp"
-#include <cstring>
-#include <iostream>
-#include <ostream>
 
 void	Server::run()
 {
