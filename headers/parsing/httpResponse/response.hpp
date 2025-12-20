@@ -47,6 +47,7 @@ private:
     static HttpResponse handlePostRequest(const HttpRequest &request);
     static std::string sanitizePath(const std::string &path);
     static std::string getContentType(const std::string &file_path, globale &conf);
+    static HttpResponse handleCGI(const HttpRequest &request, const std::string &safe_path, const std::string &ext, globale &g);
 };
 
 Response generateResponse(const HttpRequest &request);

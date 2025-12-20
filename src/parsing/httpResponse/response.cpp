@@ -9,7 +9,7 @@ static std::string size_to_string(size_t n)
 	return oss.str();
 }
 
-HttpResponse::HttpResponse(StatusCode status) : file_fd(-1) , status_code(status)
+HttpResponse::HttpResponse(StatusCode status) : file_fd(-1), status_code(status)
 {
 	headers["Content-Type"] = "text/html";
 	headers["Connection"] = "close";
@@ -107,9 +107,9 @@ std::string HttpResponse::getReasonPhrase(StatusCode code) const
 
 HttpResponse RequestHandler::handleRequest(const HttpRequest &request)
 {
-	std::cout << "Method: "<< request.method <<  "size --" << std::endl;
-	std::cout << "Version: " << request.version <<std::endl;
-	std::cout << "Path: "<< request.path <<std::endl;	
+	std::cout << "Method: " << request.method << "size --" << std::endl;
+	std::cout << "Version: " << request.version << std::endl;
+	std::cout << "Path: " << request.path << std::endl;
 	if (request.version != "HTTP/1.0")
 	{
 		HttpResponse response(HttpResponse::BAD_REQUEST);
@@ -134,6 +134,37 @@ std::string getFileExtension(std::string file)
 	if (pos == std::string::npos)
 		return "";
 	return file.substr(pos);
+}
+
+// Handle CGI script execution
+HttpResponse RequestHandler::handleCGI(const HttpRequest &request, const std::string &safe_path, const std::string &ext, globale &g)
+{
+	size_t last_slash = safe_path.find_last_of('/');
+	std::string filename;
+	if (last_slash != std::string::npos)
+		filename = safe_path.substr(last_slash + 1);
+	else
+		filename = safe_path;
+
+	// Execute CGI script
+	CGI cgi("./www/cgi-bin", request);
+	cgi.run(g.interpreters[ext], filename, request.body);
+
+	// Create response
+	HttpResponse response(HttpResponse::OK);
+
+	// Check if CGI output includes its own headers
+	if (cgi.output.find("Content-Type:") != std::string::npos)
+	{
+		response.clearHeaders();
+		response.setRawBody(cgi.output);
+	}
+	else
+	{
+		response.setBody(cgi.output);
+	}
+
+	return response;
 }
 
 HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
@@ -161,31 +192,7 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 
 	// Check if this is a CGI script
 	if (!ext.empty() && g.interpreters.find(ext) != g.interpreters.end())
-	{
-		size_t last_slash = safe_path.find_last_of('/');
-		std::string filename;
-		if (last_slash != std::string::npos)
-			filename = safe_path.substr(last_slash + 1);
-		else
-			filename = safe_path;
-
-		CGI cgi("./www/cgi-bin", request);
-		cgi.run(g.interpreters[ext], filename, "");
-
-		HttpResponse response(HttpResponse::OK);
-
-		if (cgi.output.find("Content-Type:") != std::string::npos)
-		{
-			response.clearHeaders();
-			response.setRawBody(cgi.output);
-		}
-		else
-		{
-			response.setBody(cgi.output);
-		}
-
-		return response;
-	}
+		return handleCGI(request, safe_path, ext, g);
 
 	int fd = open(file_path.c_str(), O_RDONLY);
 	if (fd != -1)
@@ -236,32 +243,9 @@ HttpResponse RequestHandler::handlePostRequest(const HttpRequest &request)
 	std::string file_path = g.root + safe_path;
 	std::string ext = getFileExtension(safe_path);
 
+	// Check if this is a CGI script
 	if (!ext.empty() && g.interpreters.find(ext) != g.interpreters.end())
-	{
-		size_t last_slash = safe_path.find_last_of('/');
-		std::string filename;
-		if (last_slash != std::string::npos)
-			filename = safe_path.substr(last_slash + 1);
-		else
-			filename = safe_path;
-
-		CGI cgi("./www/cgi-bin", request);
-		cgi.run(g.interpreters[ext], filename, request.body);
-
-		HttpResponse response(HttpResponse::OK);
-
-		if (cgi.output.find("Content-Type:") != std::string::npos)
-		{
-			response.clearHeaders();
-			response.setRawBody(cgi.output);
-		}
-		else
-		{
-			response.setBody(cgi.output);
-		}
-
-		return response;
-	}
+		return handleCGI(request, safe_path, ext, g);
 
 	HttpResponse response(HttpResponse::OK);
 	std::string response_body = "<html><body>"
