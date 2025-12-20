@@ -70,25 +70,34 @@ void	httpPars::StoreCookies(std::string& line)
 	}
 }
 
-void	httpPars::FindFilename(HttpRequest& request)
+void httpPars::FindFilename(HttpRequest& request)
 {
-	std::string name;
-	if (request.headers.find("Content-Type:") == request.headers.end())
-		creat_and_write(name, request.body);
-	else
+	size_t pos = request.body.find("filename=\"");
+	std::string filename = "";
+
+	if (pos != std::string::npos)
 	{
-		size_t start, end;
-		if ((start = request.headers["Content-Type:"].find("filename=\"")) != std::string::npos)
-		{
-			end = request.headers["Content-Type:"].find("\"", start);
-			if (end == std::string::npos)
-				creat_and_write(name, request.body);
-			name = request.headers["Content-Type:"].substr(start, end - start);
-			creat_and_write(name, request.body);
-		}
-		else
-			creat_and_write(name, request.body);
+		size_t start = pos + 10;
+		size_t end = request.body.find("\"", start);
+		if (end != std::string::npos)
+			filename = request.body.substr(start, end - start);
 	}
+
+	// find content start
+	size_t dataStart = request.body.find("\r\n\r\n");
+	if (dataStart == std::string::npos)
+		return;
+
+	dataStart += 4;
+
+	// find boundary end
+	size_t dataEnd = request.body.rfind("\r\n------");
+	if (dataEnd == std::string::npos)
+		return;
+
+	std::string fileData = request.body.substr(dataStart, dataEnd - dataStart);
+
+	creat_and_write(filename, fileData);
 }
 
 bool	httpPars::RequestPars(std::string& buffer, globale& configue)
