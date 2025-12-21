@@ -1,5 +1,6 @@
 #include "../include.hpp"
 
+ 
 void	Server::closeClient(int fd)
 {
 	epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
@@ -117,6 +118,7 @@ void	Server::send_body(Client& client)
 	if (client.offset >= readed)
 	{
 		client.readTime = 1;
+		client.offset = 0;
 		std::cout << "[DEBUG] Send salat" << std::endl;
 		std::cout << "        Sendit: " << sent << std::endl;
 	}
@@ -146,5 +148,11 @@ void	Server::_send(Client& client)
 		send(client.fd, header.c_str(), header.size(), MSG_NOSIGNAL);
 		client.bodyTime = 1;
 	}
-	send_body(client);
+	if (parsing.response.fd > 0)
+		send_body(client);
+	else
+	{
+		client.bodyTime = 0;
+		closeClient(client.fd);
+	}
 }
