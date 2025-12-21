@@ -1,15 +1,4 @@
 #include "../include.hpp"
-#include <iostream>
-#include <ostream>
-
-/*std::string to_string98(size_t n)
-{
-    std::ostringstream oss;
-    oss << n;
-    return oss.str();
-}*/
-
-
 
 void	Server::closeClient(int fd)
 {
@@ -34,7 +23,7 @@ void	Server::_recv(int fd)
 
 
 
-
+/*
 void	Server::_send(Client& client)
 {
 	ssize_t		byts = 0;
@@ -70,4 +59,92 @@ void	Server::_send(Client& client)
 		f = 0;
 		closeClient(client.fd);
 	}
+}*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+size_t	_read(int fd, char *buff)
+{
+	size_t	readed = read(fd, buff, 1048576); // 1MB
+	return readed;
+}
+
+
+void	Server::send_body(Client& client)
+{
+	int	fd = parsing.response.fd;
+	char	body[1048576];
+	ssize_t	&readed = client.readed;
+
+	if (client.readTime)
+	{
+		readed = read(fd, body, 1048576); // 1MB
+		if (readed <= 0)
+		{
+			std::cout << "[DEBUG] waaaaaaaaa333 .. read failaaat" << std::endl;
+			close(fd);
+			closeClient(client.fd);
+			return;
+		}
+		std::cout << "[DEBUG] 9raya salat" << std::endl;
+		std::cout << "        9rit: " << readed << std::endl;
+		client.readTime = 0;
+		client.offset = 0;
+	}
+
+	ssize_t		sent;
+	sent = send(client.fd, body + client.offset, std::strlen(body) - client.offset, MSG_NOSIGNAL);
+
+	if (sent <= 0)
+	{
+		close(fd);
+		closeClient(client.fd);
+		return ;
+	}
+
+	client.offset += sent;
+	if (client.offset >= readed)
+	{
+		client.readTime = 1;
+		std::cout << "[DEBUG] Send salat" << std::endl;
+		std::cout << "        Sendit: " << sent << std::endl;
+	}
+
+
+	client.wasSent += sent;
+	if ((size_t)client.wasSent >= parsing.response.size)
+	{
+		std::cout << "[DEBUG] safi Sala" << std::endl;
+		std::cout << "        wasSent: " << client.wasSent << std::endl;
+		std::cout << "        expected: " << parsing.response.size << std::endl;
+		send(client.fd, "\r\n", 2, MSG_NOSIGNAL);
+		close(fd);
+		closeClient(client.fd);
+		client.bodyTime = 0;
+	}
+}
+
+
+void	Server::_send(Client& client)
+{
+	std::string	&header = parsing.response.header;
+	// TODO:  loffset wkda bash mat assumish bli send sendat lheader caml
+	
+
+	if (!client.bodyTime){
+		send(client.fd, header.c_str(), header.size(), MSG_NOSIGNAL);
+		client.bodyTime = 1;
+	}
+	send_body(client);
 }

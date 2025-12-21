@@ -237,6 +237,7 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 			response.setHeader("Content-Length", size_to_string(file_stat.st_size));
 
 			response.file_fd = fd;
+			response.file_size = file_stat.st_size;
 			return response;
 		}
 		close(fd);
@@ -331,11 +332,13 @@ Response generateResponse(const HttpRequest &request)
 	{
 		res.header = response.toStringHeadersOnly();
 		res.fd = response.file_fd;
+		res.size = response.file_size;
 	}
 	else
 	{
 		res.header = response.toString();
 		res.fd = -1;
+		res.size = 0;
 	}
 
 	return res;

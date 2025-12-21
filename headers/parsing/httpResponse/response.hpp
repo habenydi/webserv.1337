@@ -29,6 +29,7 @@ public:
     std::string toStringHeadersOnly() const;
 
     int file_fd;
+    size_t file_size;
 
 private:
     StatusCode status_code;

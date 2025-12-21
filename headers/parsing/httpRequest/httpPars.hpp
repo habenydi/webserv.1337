@@ -7,8 +7,9 @@ struct Response
 {
 	std::string header;
 	int fd;
+	size_t size;
 
-	Response() : fd(-1) {}
+	Response() : fd(-1), size(0) {}
 };
 
 struct HttpRequest

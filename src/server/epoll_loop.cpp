@@ -57,7 +57,6 @@ void	Server::epoll_loop()
 		{
 			int f = 0;
 			Client	client;
-			client.offset = 0;
 			client.ev = clients[i];
 			client.fd = clients[i].data.fd;
 
