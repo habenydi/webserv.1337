@@ -105,14 +105,8 @@ void pars::ParseLocationBlock(std::vector<std::string> &token, size_t &index)
 		{
 			++index;
 			if (index >= token.size())
-				throw std::runtime_error("Error: missing values after 'index'");
-			while (index < token.size() && token[index] != ";")
-			{
-				loc.index.push_back(token[index]);
-				++index;
-			}
-			if (index >= token.size() || token[index] != ";")
-				throw std::runtime_error("Error: missing ';' after 'index' in location");
+			throw std::runtime_error("Error: missing values after 'index'");
+			loc.index = token[index];
 		}
 		else if (token[index] == "upload_store")
 		{
@@ -173,16 +167,9 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 		}
 		else if (token[index] == "index")
 		{
-			++index;
 			if (index >= token.size())
 				throw std::runtime_error("Error: missing values after 'index'");
-			while (index < token.size() && token[index] != ";")
-			{
-				data[Index].index = token[index];
-				++index;
-			}
-			if (index >= token.size() || token[index] != ";")
-				throw std::runtime_error("Error: missing ';' after 'index'");
+			data[Index].index = token[++index];
 		}
 		else if (token[index] == "error_page")
 		{
@@ -191,6 +178,14 @@ void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 			int error_code = std::atoi(token[++index].c_str());
 			std::string error_page = token[++index];
 			data[Index].error_page[error_code] = error_page;
+		}
+		else if (token[index] == "return")
+		{
+			if (index + 2 >= token.size())
+				throw std::runtime_error("Error: invalid redirection directive");
+			std::string file_target = token[++index];
+			std::string file_goal = token[++index];
+			data[Index].redirection[file_target] = file_goal;
 		}
 		else if (token[index] == "client_max_body_size")
 		{

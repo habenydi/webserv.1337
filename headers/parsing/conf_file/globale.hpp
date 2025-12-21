@@ -10,7 +10,7 @@ struct LocationConfig
 	std::vector<std::string> allowed_methods;
 	std::string upload_store;
 	std::string cgi_extension;
-	std::vector<std::string> index;
+	std::string index;
 	// Constructor: initialize all members
 	LocationConfig()
 		: path(), root(), autoindex(false), allowed_methods(),
@@ -47,11 +47,12 @@ class globale
 		std::vector<LocationConfig> location;
 		std::map<std::string , std::string> interpreters;
 		std::map<std::string, std::string>  mimetype;
+		std::map<std::string, std::string> redirection;
 		// Constructor: initialize all members
 		globale()
 			: port(), host(), server_name(), path(), root(),
 			max_client_size(0), autoindex(false), index(),
-			error_page(), location(), mimetype()
+			error_page(), location(), mimetype(), redirection()
 		{}
 		globale &operator=(const globale &other)
 		{
@@ -69,6 +70,7 @@ class globale
 				this->max_client_size = other.max_client_size;
 				this->interpreters = other.interpreters;
 				this->mimetype = other.mimetype;
+				this->redirection = other.redirection;
 			}
 			return (*this);
 		}
