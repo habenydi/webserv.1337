@@ -205,6 +205,13 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 	std::string index = "/" + g.index;
 	std::string file_path = "";
 	std::cout << "\n\n\npath of the website : " << safe_path << "\n\n\n";
+	std::map<std::string, std::string>::const_iterator it = request.conf.redirection.begin();
+	for (; it != request.conf.redirection.end(); it++)
+	{
+		if (safe_path == it->first)
+			safe_path = it->second;
+	}
+	
 	for (size_t i = 0; i < request.conf.location.size(); i++)
 	{
 		if (safe_path == request.conf.location[i].path)
