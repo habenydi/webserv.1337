@@ -75,13 +75,6 @@ void	Server::_send(Client& client)
 
 
 
-size_t	_read(int fd, char *buff)
-{
-	size_t	readed = read(fd, buff, 1048576); // 1MB
-	return readed;
-}
-
-
 void	Server::send_body(Client& client)
 {
 	int	fd = parsing.response.fd;
@@ -105,7 +98,7 @@ void	Server::send_body(Client& client)
 	}
 
 	ssize_t		sent;
-	sent = send(client.fd, body + client.offset, std::strlen(body) - client.offset, MSG_NOSIGNAL);
+	sent = send(client.fd, body + client.offset, readed - client.offset, MSG_NOSIGNAL);
 
 	if (sent <= 0)
 	{
@@ -117,20 +110,21 @@ void	Server::send_body(Client& client)
 	client.offset += sent;
 	if (client.offset >= readed)
 	{
-		client.readTime = 1;
-		client.offset = 0;
 		std::cout << "[DEBUG] Send salat" << std::endl;
 		std::cout << "        Sendit: " << sent << std::endl;
+		std::cout << "        loffset: " << client.offset << std::endl;
+		client.readTime = 1;
+		client.offset = 0;
 	}
 
 
 	client.wasSent += sent;
 	if ((size_t)client.wasSent >= parsing.response.size)
 	{
-		std::cout << "[DEBUG] safi Sala" << std::endl;
+		std::cout << "[DEBUG] safi kolshi Sala" << std::endl;
 		std::cout << "        wasSent: " << client.wasSent << std::endl;
 		std::cout << "        expected: " << parsing.response.size << std::endl;
-		send(client.fd, "\r\n", 2, MSG_NOSIGNAL);
+		//send(client.fd, "\r\n", 2, MSG_NOSIGNAL);
 		close(fd);
 		closeClient(client.fd);
 		client.bodyTime = 0;
