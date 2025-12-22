@@ -79,6 +79,9 @@ void	httpPars::StoreCookies(std::string& line)
 	{
 		std::string	id = GenerateId();
 		request.cookies["session_id"] = id + "; path=/; HttpOnly";
+		request.Sid.last_access = std::time(NULL);
+		request.Sid.logged_in = false;
+		request.Sid.username = "";
 	}
 }
 
@@ -170,6 +173,10 @@ void	httpPars::ChunkedBody(std::string& buffer)
 void	httpPars::RegularBody(std::string& buffer)
 {
 	size_t header_end = buffer.find("\r\n\r\n");
+	if (header_end == std::string::npos)
+	{
+		throw std::runtime_error("Incomplete HTTP header");
+	}
 	if (request.headers.find("Content-Length") == request.headers.end())
 		return ;
 	size_t body_len = std::atol(request.headers["Content-Length"].c_str()) - 3;
