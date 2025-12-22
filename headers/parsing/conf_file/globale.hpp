@@ -32,6 +32,14 @@ struct LocationConfig
 	}
 };
 
+struct Session
+{
+    bool logged_in;
+    std::string username;
+    time_t last_access;
+};
+
+
 class globale
 {
 	public:

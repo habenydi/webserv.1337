@@ -52,6 +52,13 @@ bool	httpPars::splitHeader(std::string& result)
 	return true;
 }
 
+std::string	GenerateId()
+{
+	std::stringstream ss;
+	ss << std::time(NULL) << std::rand();
+	return (ss.str());
+}
+
 void	httpPars::StoreCookies(std::string& line)
 {
 	size_t equal,start = 0, semicolon;
@@ -64,9 +71,14 @@ void	httpPars::StoreCookies(std::string& line)
 		std::string	key = line.substr(start, equal - start);
 		std::string value = line.substr(equal + 1, semicolon - equal - 1);
 		request.cookies[key] = value;
-        start = semicolon + 1;
-        while (start < line.size() && (line[start] == ' ' || line[start] == '\t'))
-            start++;
+		start = semicolon + 1;
+		while (start < line.size() && (line[start] == ' ' || line[start] == '\t'))
+			start++;
+	}
+	if (request.cookies.find("session_id") == request.cookies.end())
+	{
+		std::string	id = GenerateId();
+		request.cookies["session_id"] = id + "; path=/; HttpOnly";
 	}
 }
 
@@ -105,6 +117,7 @@ bool	httpPars::RequestPars(std::string& buffer, globale& configue)
 	this->request.conf = configue;
 	request.IsPOST = false;
 	size_t header_end = buffer.find("\r\n\r\n");
+	std::cout << "\n\n" << buffer << "\n";
 	if (header_end == std::string::npos)
 	{
 		throw std::runtime_error("Incomplete HTTP header");

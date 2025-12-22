@@ -26,7 +26,7 @@ public:
     void clearHeaders();
     void setRawBody(const std::string &body);
     std::string toString() const;
-    std::string toStringHeadersOnly() const;
+    std::string toStringHeadersOnly(const HttpRequest& request) const;
 
     int file_fd;
     size_t file_size;

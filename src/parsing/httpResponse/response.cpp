@@ -69,7 +69,7 @@ std::string HttpResponse::toString() const
 }
 
 // ADD THIS NEW METHOD
-std::string HttpResponse::toStringHeadersOnly() const
+std::string HttpResponse::toStringHeadersOnly(const HttpRequest& request) const
 {
 	std::ostringstream response;
 	response << "HTTP/1.0 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
@@ -79,7 +79,11 @@ std::string HttpResponse::toStringHeadersOnly() const
 	{
 		response << it->first << ": " << it->second << "\r\n";
 	}
-
+	for (std::map<std::string, std::string>::const_iterator it = request.cookies.begin() ; it != request.cookies.end(); it++)
+	{
+		response << "Set-Cookie: " << it->first << "=" << it->second << "\r\n";
+	}
+	
 	response << "\r\n";
 	return response.str();
 }
@@ -204,7 +208,6 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 	globale g = request.conf;
 	std::string index = "/" + g.index;
 	std::string file_path = "";
-	std::cout << "\n\n\npath of the website : " << safe_path << "\n\n\n";
 	std::map<std::string, std::string>::const_iterator it = request.conf.redirection.begin();
 	for (; it != request.conf.redirection.end(); it++)
 	{
@@ -228,7 +231,6 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 			safe_path = index;
 		file_path = g.root + safe_path;
 	}
-	std::cout << "\n\n\n" << file_path << "\n\n\n";
 	std::string ext = getFileExtension(safe_path);
 
 	// Check if this is a CGI script
@@ -340,7 +342,8 @@ Response generateResponse(const HttpRequest &request)
 	// If response has a file descriptor, return only headers
 	if (response.file_fd != -1)
 	{
-		res.header = response.toStringHeadersOnly();
+		res.header = response.toStringHeadersOnly(request);
+		std::cout << "\n\n-->  " << res.header << std::endl;
 		res.fd = response.file_fd;
 		res.size = response.file_size;
 	}
