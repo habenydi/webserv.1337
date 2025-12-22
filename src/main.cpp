@@ -1,6 +1,7 @@
 #include "include.hpp"
 
 std::vector<globale> config;
+std::map<std::string, Session> sid;
 char	**env;
 
 const char* SigInt::what() const throw()

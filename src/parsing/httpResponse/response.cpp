@@ -69,7 +69,7 @@ std::string HttpResponse::toString() const
 }
 
 // ADD THIS NEW METHOD
-std::string HttpResponse::toStringHeadersOnly(const HttpRequest& request) const
+std::string HttpResponse::toStringHeadersOnly(HttpRequest& request) const
 {
 	std::ostringstream response;
 	response << "HTTP/1.0 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
@@ -83,7 +83,6 @@ std::string HttpResponse::toStringHeadersOnly(const HttpRequest& request) const
 	{
 		response << "Set-Cookie: " << it->first << "=" << it->second << "\r\n";
 	}
-	
 	response << "\r\n";
 	return response.str();
 }
@@ -111,7 +110,7 @@ std::string HttpResponse::getReasonPhrase(StatusCode code) const
 	}
 }
 
-HttpResponse RequestHandler::handleDeleteRequest(const HttpRequest &request)
+HttpResponse RequestHandler::handleDeleteRequest(HttpRequest &request)
 {
 	std::string safe_path = sanitizePath(request.path);
 	globale g = request.conf;
@@ -141,7 +140,7 @@ HttpResponse RequestHandler::handleDeleteRequest(const HttpRequest &request)
 	}
 }
 
-HttpResponse RequestHandler::handleRequest(const HttpRequest &request)
+HttpResponse RequestHandler::handleRequest(HttpRequest &request)
 {
 	if (request.version != "HTTP/1.0")
 	{
@@ -172,7 +171,7 @@ std::string getFileExtension(std::string file)
 }
 
 // Handle CGI script execution
-HttpResponse RequestHandler::handleCGI(const HttpRequest &request, const std::string &safe_path, const std::string &ext, globale &g)
+HttpResponse RequestHandler::handleCGI(HttpRequest &request, const std::string &safe_path, const std::string &ext, globale &g)
 {
 	size_t last_slash = safe_path.find_last_of('/');
 	std::string filename;
@@ -202,8 +201,14 @@ HttpResponse RequestHandler::handleCGI(const HttpRequest &request, const std::st
 	return response;
 }
 
-HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
+HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 {
+	std::cout << "\n\n\n\n\n\n\n\n " << request.path << "\n\n\n\n\n\n\n" << sid[request.cookies["session_id"]].logged_in;
+	if (request.path == "/html/login.html" && sid[request.cookies["session_id"]].logged_in)
+	{
+		request.path = "/html/profile.html";
+		return handleGetRequest(request);
+	}
 	std::string safe_path = sanitizePath(request.path);
 	globale g = request.conf;
 	std::string index = "/" + g.index;
@@ -214,7 +219,6 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 		if (safe_path == it->first)
 			safe_path = it->second;
 	}
-	
 	for (size_t i = 0; i < request.conf.location.size(); i++)
 	{
 		if (safe_path == request.conf.location[i].path)
@@ -276,11 +280,33 @@ HttpResponse RequestHandler::handleGetRequest(const HttpRequest &request)
 	return response;
 }
 
-HttpResponse RequestHandler::handlePostRequest(const HttpRequest &request)
+HttpResponse	RequestHandler::HandleCookieFile(HttpRequest& request)
+{
+	size_t pos = request.body.find("email=");
+	if (pos != std::string::npos)
+	{
+		size_t end = request.body.find("&", pos);
+		if (end == std::string::npos)
+            end = request.body.size();
+		sid[request.cookies["session_id"]].email
+			= request.body.substr(pos + 6, end - (pos + 6));
+		sid[request.cookies["session_id"]].logged_in = true;
+		sid[request.cookies["session_id"]].last_access
+			= sid[request.cookies["session_id"]].last_access - std::atol(GenerateId().c_str());
+	}
+	HttpResponse res(HttpResponse::FOUND);
+	res.setHeader("Location", "/html/profile.html");
+	std::cout << "\n\n\n\n\n\n\n\n ====>" << request.path << "\n\n\n\n\n\n\n2======>" << sid[request.cookies["session_id"]].logged_in;
+	return res;
+}
+
+HttpResponse RequestHandler::handlePostRequest(HttpRequest &request)
 {
 	std::string safe_path = sanitizePath(request.path);
 	globale g = request.conf;
 
+	if (request.path == "/html/profile.html")
+		return HandleCookieFile(request);
 	if (safe_path == "/")
 		safe_path = "/index.html";
 
@@ -334,7 +360,7 @@ std::string RequestHandler::getContentType(const std::string &file_path, globale
 	return "application/octet-stream";
 }
 
-Response generateResponse(const HttpRequest &request)
+Response generateResponse(HttpRequest &request)
 {
 	Response res;
 	HttpResponse response = RequestHandler::handleRequest(request);

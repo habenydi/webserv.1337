@@ -31,7 +31,7 @@ struct HttpRequest
 	std::map<std::string, std::string> cookies;	  // parsed "Cookie" header
 	std::map<std::string, std::string> form_data; // for application/x-www-form-urlencoded POST
 	std::vector<unsigned char> raw_body;		  // if binary upload, store as bytes
-	Session	Sid;
+	std::map<std::string, Session>	Sid;
 	bool IsPOST;
 };
 

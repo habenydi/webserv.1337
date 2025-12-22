@@ -34,8 +34,19 @@ struct LocationConfig
 
 struct Session
 {
+	Session&	operator=(const Session& other)
+	{
+		if (this != &other)
+		{
+			this->logged_in = other.logged_in;
+			this->email = other.email;
+			this->last_access = other.last_access;
+		}
+		return (*this);
+	}
+
     bool logged_in;
-    std::string username;
+    std::string email;
     time_t last_access;
 };
 

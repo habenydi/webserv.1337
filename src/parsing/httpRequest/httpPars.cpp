@@ -78,10 +78,10 @@ void	httpPars::StoreCookies(std::string& line)
 	if (request.cookies.find("session_id") == request.cookies.end())
 	{
 		std::string	id = GenerateId();
-		request.cookies["session_id"] = id + "; path=/; HttpOnly";
-		request.Sid.last_access = std::time(NULL);
-		request.Sid.logged_in = false;
-		request.Sid.username = "";
+		request.cookies["session_id"] = id;
+		sid[id].last_access = std::time(NULL);
+		sid[id].logged_in = false;
+		sid[id].email = "";
 	}
 }
 
@@ -175,15 +175,15 @@ void	httpPars::RegularBody(std::string& buffer)
 	size_t header_end = buffer.find("\r\n\r\n");
 	if (header_end == std::string::npos)
 	{
-		throw std::runtime_error("Incomplete HTTP header");
+		throw std::runtime_error("Incomplete POST body");
 	}
 	if (request.headers.find("Content-Length") == request.headers.end())
 		return ;
-	size_t body_len = std::atol(request.headers["Content-Length"].c_str()) - 3;
+	size_t body_len = std::atol(request.headers["Content-Length"].c_str());
 	size_t body_start = header_end + 4;
  	if (buffer.size() < body_start + body_len)
 	{
 		throw std::runtime_error("Incomplete POST body");
 	}
-	request.body = buffer.substr(body_start, body_len);
+	buffer.erase(0, body_start + body_len);
 }

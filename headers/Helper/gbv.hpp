@@ -4,4 +4,4 @@
 
 extern std::vector<globale> config;
 extern char	**env;
-
+extern std::map<std::string, Session> sid;

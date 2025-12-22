@@ -26,7 +26,7 @@ public:
     void clearHeaders();
     void setRawBody(const std::string &body);
     std::string toString() const;
-    std::string toStringHeadersOnly(const HttpRequest& request) const;
+    std::string toStringHeadersOnly(HttpRequest& request) const;
 
     int file_fd;
     size_t file_size;
@@ -42,15 +42,17 @@ private:
 class RequestHandler
 {
 public:
-    static HttpResponse handleRequest(const HttpRequest &request);
+    static HttpResponse handleRequest(HttpRequest &request);
 
 private:
-    static HttpResponse handleGetRequest(const HttpRequest &request);
-    static HttpResponse handlePostRequest(const HttpRequest &request);
+    static HttpResponse handleGetRequest(HttpRequest &request);
+    static HttpResponse handlePostRequest(HttpRequest &request);
     static std::string sanitizePath(const std::string &path);
     static std::string getContentType(const std::string &file_path, globale &conf);
-    static HttpResponse handleCGI(const HttpRequest &request, const std::string &safe_path, const std::string &ext, globale &g);
-    static HttpResponse handleDeleteRequest(const HttpRequest &request);
+    static HttpResponse handleCGI(HttpRequest &request, const std::string &safe_path, const std::string &ext, globale &g);
+    static HttpResponse handleDeleteRequest(HttpRequest &request);
+    static HttpResponse	HandleCookieFile(HttpRequest& request);
 };
 
-Response generateResponse(const HttpRequest &request);
+Response generateResponse(HttpRequest &request);
+std::string	GenerateId();
