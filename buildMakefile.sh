@@ -31,15 +31,15 @@ OBJS       = \$(SRCS:src/%.cpp=\$(OBJDIR)/%.o)
 all: \$(NAME)
 
 \$(NAME): \$(OBJDIR) \$(OBJS)
-	\$(CXX) \$(CXXFLAGS) \$(OBJS) -o \$(NAME)
+	@\$(CXX) \$(CXXFLAGS) \$(OBJS) -o \$(NAME)
 	@echo "\\033[0;32m✓ \$(NAME) compiled successfully!\\033[0m"
 
 \$(OBJDIR):
-	mkdir -p \$(OBJDIR)
+	@mkdir -p \$(OBJDIR)
 
 \$(OBJDIR)/%.o: src/%.cpp
-	mkdir -p \$(dir \$@)
-	\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
+	@mkdir -p \$(dir \$@)
+	@\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
 
 clean:
 	@rm -rf \$(OBJDIR)
