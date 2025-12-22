@@ -215,10 +215,14 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 	std::string file_path = "";
 	std::map<std::string, std::string>::const_iterator it = request.conf.redirection.begin();
 	for (; it != request.conf.redirection.end(); it++)
-	{
-		if (safe_path == it->first)
-			safe_path = it->second;
-	}
+    {
+        if (request.path == it->first)
+        {
+            HttpResponse response(HttpResponse::FOUND);
+            response.setHeader("Location", it->second);
+            return response;
+        }
+    }
 	for (size_t i = 0; i < request.conf.location.size(); i++)
 	{
 		if (safe_path == request.conf.location[i].path)
