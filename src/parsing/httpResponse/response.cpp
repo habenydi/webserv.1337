@@ -201,6 +201,28 @@ HttpResponse RequestHandler::handleCGI(HttpRequest &request, const std::string &
 	return response;
 }
 
+HttpResponse	RequestHandler::GenerateDirRequest(std::string& path, std::string& root)
+{
+	std::string new_one = root + path;
+	DIR* dir = opendir(new_one.c_str());
+	if (!dir)
+		return HttpResponse(HttpResponse::INTERNAL_SERVER_ERROR);
+	std::string body = "<html><body><h1>Index of " + root +  path + "</h1><ul>";
+	struct dirent* entry;
+	while ((entry = readdir(dir)) != NULL)
+	{
+		std::string name = entry->d_name;
+		if (name == "." || name == "..") continue;
+		body += "<li><a href=\"" + path + "/" + name + "\">" + name + "</a></li>";
+	}
+	body += "</ul></body></html>";
+	HttpResponse res(HttpResponse::OK);
+	closedir(dir);
+	res.setHeader("Content-Type", "text/html");
+	res.setBody(body);
+	return res;
+}
+
 HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 {
 	std::cout << "\n\n\n\n\n\n\n\n " << request.path << "\n\n\n\n\n\n\n";
@@ -241,9 +263,17 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 	{
 		if (safe_path == request.conf.location[i].path)
 		{
+			struct stat path;
 			std::string root = request.conf.location[i].root.empty() ? g.root
 				: request.conf.location[i].root;
-
+			std::string new_path = root + safe_path; 
+			if (new_path != "/" && (stat(new_path.c_str(), &path) == 0) && S_ISDIR(path.st_mode))
+			{
+				if (request.conf.location[i].autoindex)
+					return GenerateDirRequest(safe_path, root);
+				else
+					return HttpResponse(HttpResponse::FORBIDDEN);
+			}
 			std::string index = request.conf.location[i].index.empty()
 				? g.index
 				: request.conf.location[i].index;

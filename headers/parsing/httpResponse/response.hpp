@@ -52,6 +52,7 @@ private:
     static HttpResponse handleCGI(HttpRequest &request, const std::string &safe_path, const std::string &ext, globale &g);
     static HttpResponse handleDeleteRequest(HttpRequest &request);
     static HttpResponse	HandleCookieFile(HttpRequest& request);
+    static HttpResponse	GenerateDirRequest(std::string& path, std::string& root);
 };
 
 Response generateResponse(HttpRequest &request);
