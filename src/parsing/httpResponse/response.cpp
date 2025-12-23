@@ -216,7 +216,7 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 			request.path = "/login";
 			return handleGetRequest(request);
 		}
-		if (std::time(NULL) - sid[request.cookies["session_id"]].last_access > MAX_TIME_LOGIN)
+		if (std::time(NULL) - sid[request.cookies["session_id"]].last_access > TIMEOUT_LOGIN)
 		{
 			sid[request.cookies["session_id"]].logged_in = false;
 			request.path = "/login";

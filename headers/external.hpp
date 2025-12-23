@@ -29,4 +29,4 @@
 #include <utility>
 
 #define MAX_REQUEST_SIZE 5362
-# define MAX_TIME_LOGIN 1800
+# define TIMEOUT_LOGIN 1800
