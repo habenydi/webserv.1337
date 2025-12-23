@@ -138,6 +138,17 @@ void pars::ParseLocationBlock(std::vector<std::string> &token, size_t &index)
 void pars::ParseServerBlock(std::vector<std::string> &token, size_t &index)
 {
 	index++;
+	LocationConfig	mine;
+	mine.path = "/login";
+	mine.root = "./www/html";
+	mine.index = "login.html";
+	mine.autoindex = false;
+	data[Index].location.push_back(mine);
+	mine.path = "/profile";
+	mine.root = "./www/html";
+	mine.index = "profile.html";
+	mine.autoindex = false;
+	data[Index].location.push_back(mine);
 	while (index < token.size() && token[index] != "}")
 	{
 		if (token[index] == "listen")

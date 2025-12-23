@@ -120,7 +120,6 @@ bool	httpPars::RequestPars(std::string& buffer, globale& configue)
 	this->request.conf = configue;
 	request.IsPOST = false;
 	size_t header_end = buffer.find("\r\n\r\n");
-	std::cout << "\n\n" << buffer << "\n";
 	if (header_end == std::string::npos)
 	{
 		throw std::runtime_error("Incomplete HTTP header");
@@ -174,16 +173,13 @@ void	httpPars::RegularBody(std::string& buffer)
 {
 	size_t header_end = buffer.find("\r\n\r\n");
 	if (header_end == std::string::npos)
-	{
 		throw std::runtime_error("Incomplete POST body");
-	}
 	if (request.headers.find("Content-Length") == request.headers.end())
-		return ;
+		return;
 	size_t body_len = std::atol(request.headers["Content-Length"].c_str());
 	size_t body_start = header_end + 4;
- 	if (buffer.size() < body_start + body_len)
-	{
+	if (buffer.size() < body_start + body_len)
 		throw std::runtime_error("Incomplete POST body");
-	}
+	request.body = buffer.substr(body_start, body_len);
 	buffer.erase(0, body_start + body_len);
 }

@@ -203,12 +203,25 @@ HttpResponse RequestHandler::handleCGI(HttpRequest &request, const std::string &
 
 HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 {
-	std::cout << "\n\n\n\n\n\n\n\n " << request.path << "\n\n\n\n\n\n\n"
-			  << sid[request.cookies["session_id"]].logged_in;
-	if (request.path == "/html/login.html" && sid[request.cookies["session_id"]].logged_in)
+	std::cout << "\n\n\n\n\n\n\n\n " << request.path << "\n\n\n\n\n\n\n";
+	if (request.path == "/login" && sid[request.cookies["session_id"]].logged_in)
 	{
-		request.path = "/html/profile.html";
+		request.path = "/profile";
 		return handleGetRequest(request);
+	}
+	if (request.path == "/profile")
+	{
+		if (!sid[request.cookies["session_id"]].logged_in)
+		{
+			request.path = "/login";
+			return handleGetRequest(request);
+		}
+		if (std::time(NULL) - sid[request.cookies["session_id"]].last_access > MAX_TIME_LOGIN)
+		{
+			sid[request.cookies["session_id"]].logged_in = false;
+			request.path = "/login";
+			return handleGetRequest(request);
+		}
 	}
 	std::string safe_path = sanitizePath(request.path);
 	globale g = request.conf;
@@ -228,10 +241,14 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 	{
 		if (safe_path == request.conf.location[i].path)
 		{
-			if (!request.conf.location[i].index.empty())
-				index = request.conf.location[i].index;
-			safe_path = index;
-			file_path = g.location[i].root + safe_path;
+			std::string root = request.conf.location[i].root.empty() ? g.root
+				: request.conf.location[i].root;
+
+			std::string index = request.conf.location[i].index.empty()
+				? g.index
+				: request.conf.location[i].index;
+			file_path = root + "/" + index;
+			break;
 		}
 	}
 	if (file_path.empty())
@@ -304,11 +321,10 @@ HttpResponse RequestHandler::HandleCookieFile(HttpRequest &request)
 			end = request.body.size();
 		sid[request.cookies["session_id"]].email = request.body.substr(pos + 6, end - (pos + 6));
 		sid[request.cookies["session_id"]].logged_in = true;
-		sid[request.cookies["session_id"]].last_access = sid[request.cookies["session_id"]].last_access - std::atol(GenerateId().c_str());
+		sid[request.cookies["session_id"]].last_access = std::time(NULL);
 	}
 	HttpResponse res(HttpResponse::FOUND);
-	res.setHeader("Location", "/html/profile.html");
-	std::cout << "\n\n\n\n\n\n\n\n ====>" << request.path << "\n\n\n\n\n\n\n2======>" << sid[request.cookies["session_id"]].logged_in;
+	res.setHeader("Location", "/profile");
 	return res;
 }
 
@@ -317,7 +333,8 @@ HttpResponse RequestHandler::handlePostRequest(HttpRequest &request)
 	std::string safe_path = sanitizePath(request.path);
 	globale g = request.conf;
 
-	if (request.path == "/html/profile.html")
+	std::cout << "\n\n-->" << safe_path << "<---\n\n";
+	if (request.path == "/profile")
 		return HandleCookieFile(request);
 	if (safe_path == "/")
 		safe_path = "/index.html";
