@@ -69,7 +69,7 @@ std::string HttpResponse::toString() const
 }
 
 // ADD THIS NEW METHOD
-std::string HttpResponse::toStringHeadersOnly(HttpRequest& request) const
+std::string HttpResponse::toStringHeadersOnly(HttpRequest &request) const
 {
 	std::ostringstream response;
 	response << "HTTP/1.0 " << status_code << " " << getReasonPhrase(status_code) << "\r\n";
@@ -79,7 +79,7 @@ std::string HttpResponse::toStringHeadersOnly(HttpRequest& request) const
 	{
 		response << it->first << ": " << it->second << "\r\n";
 	}
-	for (std::map<std::string, std::string>::const_iterator it = request.cookies.begin() ; it != request.cookies.end(); it++)
+	for (std::map<std::string, std::string>::const_iterator it = request.cookies.begin(); it != request.cookies.end(); it++)
 	{
 		response << "Set-Cookie: " << it->first << "=" << it->second << "\r\n";
 	}
@@ -203,7 +203,8 @@ HttpResponse RequestHandler::handleCGI(HttpRequest &request, const std::string &
 
 HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 {
-	std::cout << "\n\n\n\n\n\n\n\n " << request.path << "\n\n\n\n\n\n\n" << sid[request.cookies["session_id"]].logged_in;
+	std::cout << "\n\n\n\n\n\n\n\n " << request.path << "\n\n\n\n\n\n\n"
+			  << sid[request.cookies["session_id"]].logged_in;
 	if (request.path == "/html/login.html" && sid[request.cookies["session_id"]].logged_in)
 	{
 		request.path = "/html/profile.html";
@@ -215,14 +216,14 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 	std::string file_path = "";
 	std::map<std::string, std::string>::const_iterator it = request.conf.redirection.begin();
 	for (; it != request.conf.redirection.end(); it++)
-    {
-        if (request.path == it->first)
-        {
-            HttpResponse response(HttpResponse::FOUND);
-            response.setHeader("Location", it->second);
-            return response;
-        }
-    }
+	{
+		if (request.path == it->first)
+		{
+			HttpResponse response(HttpResponse::FOUND);
+			response.setHeader("Location", it->second);
+			return response;
+		}
+	}
 	for (size_t i = 0; i < request.conf.location.size(); i++)
 	{
 		if (safe_path == request.conf.location[i].path)
@@ -241,9 +242,18 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 	}
 	std::string ext = getFileExtension(safe_path);
 
-	// Check if this is a CGI script
+	// Check if this is a potential CGI script based on extension
 	if (!ext.empty() && g.interpreters.find(ext) != g.interpreters.end())
-		return handleCGI(request, safe_path, ext, g);
+	{
+		// Check if CGI script exists in cgi-bin directory
+		std::string cgi_path = g.root + "/cgi-bin" + safe_path;
+		int cgi_fd = open(cgi_path.c_str(), O_RDONLY);
+		if (cgi_fd != -1)
+		{
+			close(cgi_fd);
+			return handleCGI(request, safe_path, ext, g);
+		}
+	}
 
 	int fd = open(file_path.c_str(), O_RDONLY);
 	if (fd != -1)
@@ -284,19 +294,17 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 	return response;
 }
 
-HttpResponse	RequestHandler::HandleCookieFile(HttpRequest& request)
+HttpResponse RequestHandler::HandleCookieFile(HttpRequest &request)
 {
 	size_t pos = request.body.find("email=");
 	if (pos != std::string::npos)
 	{
 		size_t end = request.body.find("&", pos);
 		if (end == std::string::npos)
-            end = request.body.size();
-		sid[request.cookies["session_id"]].email
-			= request.body.substr(pos + 6, end - (pos + 6));
+			end = request.body.size();
+		sid[request.cookies["session_id"]].email = request.body.substr(pos + 6, end - (pos + 6));
 		sid[request.cookies["session_id"]].logged_in = true;
-		sid[request.cookies["session_id"]].last_access
-			= sid[request.cookies["session_id"]].last_access - std::atol(GenerateId().c_str());
+		sid[request.cookies["session_id"]].last_access = sid[request.cookies["session_id"]].last_access - std::atol(GenerateId().c_str());
 	}
 	HttpResponse res(HttpResponse::FOUND);
 	res.setHeader("Location", "/html/profile.html");
@@ -317,9 +325,18 @@ HttpResponse RequestHandler::handlePostRequest(HttpRequest &request)
 	std::string file_path = g.root + safe_path;
 	std::string ext = getFileExtension(safe_path);
 
-	// Check if this is a CGI script
+	// Check if this is a potential CGI script based on extension
 	if (!ext.empty() && g.interpreters.find(ext) != g.interpreters.end())
-		return handleCGI(request, safe_path, ext, g);
+	{
+		// Check if CGI script exists in cgi-bin directory
+		std::string cgi_path = g.root + "/cgi-bin" + safe_path;
+		int cgi_fd = open(cgi_path.c_str(), O_RDONLY);
+		if (cgi_fd != -1)
+		{
+			close(cgi_fd);
+			return handleCGI(request, safe_path, ext, g);
+		}
+	}
 
 	HttpResponse response(HttpResponse::OK);
 	std::string response_body = "<html><body>"
