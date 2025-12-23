@@ -223,6 +223,21 @@ HttpResponse	RequestHandler::GenerateDirRequest(std::string& path, std::string& 
 	return res;
 }
 
+bool sameFile(const std::string& path1, const std::string& path2)
+{
+    struct stat s1;
+    struct stat s2;
+
+	std::cout << path1 << "\n" << path2;
+    if (stat(path1.c_str(), &s1) != 0)
+        return false;
+    if (stat(path2.c_str(), &s2) != 0)
+        return false;
+
+    return (s1.st_ino == s2.st_ino) && (s1.st_dev == s2.st_dev);
+}
+
+
 HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 {
 	std::cout << "\n\n\n\n\n\n\n\n " << request.path << "\n\n\n\n\n\n\n";
@@ -231,7 +246,7 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 		request.path = "/profile";
 		return handleGetRequest(request);
 	}
-	if (request.path == "/profile")
+	if (request.path == "/profile" || sameFile("www/html/profile.html", request.conf.root + request.path))
 	{
 		if (!sid[request.cookies["session_id"]].logged_in)
 		{
@@ -267,7 +282,7 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 			std::string root = request.conf.location[i].root.empty() ? g.root
 				: request.conf.location[i].root;
 			std::string new_path = root + safe_path; 
-			if (new_path != "/" && (stat(new_path.c_str(), &path) == 0) && S_ISDIR(path.st_mode))
+			if (safe_path != "/" && (stat(new_path.c_str(), &path) == 0) && S_ISDIR(path.st_mode))
 			{
 				if (request.conf.location[i].autoindex)
 					return GenerateDirRequest(safe_path, root);
@@ -287,6 +302,7 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 			safe_path = index;
 		file_path = g.root + safe_path;
 	}
+	std::cout << "\n\n\n\n\n\n\n\n " << safe_path << "\n\n\n\n\n\n\n";
 	std::string ext = getFileExtension(safe_path);
 
 	// Check if this is a potential CGI script based on extension
@@ -360,11 +376,12 @@ HttpResponse RequestHandler::HandleCookieFile(HttpRequest &request)
 
 HttpResponse RequestHandler::handlePostRequest(HttpRequest &request)
 {
+	std::cout << "\n\n-->" << request.path << "<---\n\n";
 	std::string safe_path = sanitizePath(request.path);
 	globale g = request.conf;
 
 	std::cout << "\n\n-->" << safe_path << "<---\n\n";
-	if (request.path == "/profile")
+	if (request.path == "/profile" || sameFile("www/html/profile.html", request.conf.root + request.path))
 		return HandleCookieFile(request);
 	if (safe_path == "/")
 		safe_path = "/index.html";

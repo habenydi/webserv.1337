@@ -30,4 +30,4 @@
 #include <sys/stat.h>
 
 #define MAX_REQUEST_SIZE 5362
-# define TIMEOUT_LOGIN 10
+# define TIMEOUT_LOGIN 1800
