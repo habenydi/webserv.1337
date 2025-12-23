@@ -1,6 +1,4 @@
 #include "../../include.hpp"
-#include <iostream>
-#include <ostream>
 
 static std::string size_to_string(size_t n)
 {
@@ -331,6 +329,11 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 
 			response.file_fd = fd;
 			response.file_size = file_stat.st_size;
+	//		if (file_stat.st_size > MB(1))// && request.headers.find("Range") != request.headers.end())
+	//		{
+	//			response.setStatusCode(HttpResponse::PARTIAL_CONTENT);
+	//			response.setHeader("Content-Range", "bytes 0-" + size_to_string(file_stat.st_size - 1) + "/" + size_to_string(file_stat.st_size));
+	//		}
 			return response;
 		}
 		close(fd);
@@ -434,7 +437,7 @@ std::string RequestHandler::getContentType(const std::string &file_path, globale
 {
 	size_t dot_pos = file_path.find_last_of('.');
 	if (dot_pos == std::string::npos)
-		return "application/octet-stream";
+		return "text/html";
 
 	std::string ext = file_path.substr(dot_pos + 1);
 
@@ -442,7 +445,7 @@ std::string RequestHandler::getContentType(const std::string &file_path, globale
 	if (it != conf.mimetype.end())
 		return it->second;
 
-	return "application/octet-stream";
+	return "text/html";
 }
 
 Response generateResponse(HttpRequest &request)
