@@ -1,6 +1,5 @@
 #include "include.hpp"
 
-std::vector<globale> config;
 std::map<std::string, Session> sid;
 char	**env;
 
@@ -16,6 +15,7 @@ void	sigIntHandl(int sig)
 
 int	main(int ac, char **av, char **menv)
 {
+	std::vector<globale> config;
 	env = menv;
 	signal(SIGINT, sigIntHandl);
 	try {
@@ -26,7 +26,7 @@ int	main(int ac, char **av, char **menv)
 		else
 			prs.parsing("config/Default.conf", config);
 		Server server;
-		server.run();
+		server.run(config);
 	}catch (SigInt& e)
 	{
 		std::cout << "\033[38;2;255;153;51m\n[WARNING]" << e.what() << "\033[0m" << std::endl;

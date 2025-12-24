@@ -73,6 +73,7 @@ class globale
 			max_client_size(0), autoindex(false), index(),
 			error_page(), location(), mimetype(), redirection()
 		{}
+		
 		globale &operator=(const globale &other)
 		{
 			if (this != &other)

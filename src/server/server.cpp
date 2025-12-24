@@ -1,80 +1,71 @@
 #include "../include.hpp"
 
-void	Server::run()
+void	Server::run(std::vector<globale>& configs)
 {
-	for (size_t i = 0; i < config.size(); i++) {
-		for (size_t j = 0; j < config[i].port.size(); j++) {
-			sock	socket;
-			socket.port = config[i].port[j];
-			socket.conf = config[i];
-			socks.push_back(socket);
+	for (size_t i = 0; i < configs.size(); i++)
+	{
+		for (size_t j = 0; j < configs[i].port.size(); j++)
+		{
+			Socket	sock;
+			
+			if (init_socket(configs[i].port[j], configs[i]))
+				return ;
 		}
 	}
-	std::cout << "[DEBUG] socks size: " << socks.size() << std::endl;
-	for (size_t i = 0; i < socks.size(); i++)
-		if (init_sock(i))
-			return;
-	epoll_loop();
+
+
+	event_loop();
 }
 
-
-
-
-int set_nonBlocking(int fd) {
+int set_non_blocking(int fd) {
     int flags = fcntl(fd, F_GETFL, 0);
     if (flags == -1)
         return -1;
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-
-
-
-int	Server::init_sock(size_t i)
+int	binding(Socket& sock, globale& config)
 {
-	socks[i].sockfd	= socket(AF_INET, SOCK_STREAM, 0);
-	if (socks[i].sockfd == -1)
-	{
-	    std::cerr << "socket() failed" << std::endl;
-	    return -1;
-	}
-
-	int opt = 1;
-	setsockopt(socks[i].sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)); // for "Address already in use" problem
-	set_nonBlocking(socks[i].sockfd);
-
 	struct sockaddr_in baddr;
 	memset(&baddr, 0, sizeof(baddr));
 	baddr.sin_family = AF_INET;
-	baddr.sin_port = htons(socks[i].port);
-	baddr.sin_addr.s_addr = inet_addr(socks[i].conf.host.c_str());
-	if (bind(socks[i].sockfd, (struct sockaddr*)&baddr, sizeof(baddr)))
+	baddr.sin_port = htons(sock.port);
+	baddr.sin_addr.s_addr = inet_addr(config.host.c_str());
+	if (bind(sock.sockfd, (struct sockaddr*)&baddr, sizeof(baddr)))
 	{
 		std::cerr << "[Error] bind fails: " << strerror(errno) << std::endl;
-		return -1;
-	}
-
-	if (listen(socks[i].sockfd, 10))
-	{
-		std::cerr << "[Error] listen fails: "  << strerror(errno) << std::endl;
 		return -1;
 	}
 	return 0;
 }
 
 
-
-
-void	Server::accept_client(int sockfd, globale& conf)
+int	Server::init_socket(int port, globale& config)
 {
-	int client_fd = accept(sockfd, NULL, NULL);
-	client_config[client_fd] = conf;
-	if (client_fd != -1) {
-                set_nonBlocking(client_fd);
+	Socket	sock;
 
-                struct epoll_event ev;
-                ev.events = EPOLLIN | EPOLLRDHUP;
-                ev.data.fd = client_fd;
-                epoll_ctl(epfd, EPOLL_CTL_ADD, client_fd, &ev);
+	sock.port = port;
+	sock.config = config;
+	sock.sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock.sockfd == -1){
+		std::cerr << "socket() fails: "  << strerror(errno) << std::endl;
+		return -1;
 	}
+
+	int opt = 1;
+	setsockopt(sock.sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+	set_non_blocking(sock.sockfd);
+
+	if (binding(sock, config))
+		return -1;
+
+	if (listen(sock.sockfd, 10)){
+		std::cerr << "[ERROR] Listen fails: " << strerror(errno) << std::endl;
+		return -1;
+	}
+
+
+	_sockets.push_back(sock);
+	return 0;
 }
