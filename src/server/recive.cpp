@@ -19,7 +19,7 @@ void	Server::recv_request(Client& client)
 	try {
 		respons.RequestPars(request, client.config);
 	}
-	catch (std::runtime_error e){
+	catch (std::runtime_error &e){
 		return ;
 	}
 	catch (...){
