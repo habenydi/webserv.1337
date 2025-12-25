@@ -199,18 +199,19 @@ HttpResponse RequestHandler::handleCGI(HttpRequest &request, const std::string &
 	return response;
 }
 
-HttpResponse	RequestHandler::GenerateDirRequest(std::string& path, std::string& root)
+HttpResponse RequestHandler::GenerateDirRequest(std::string &path, std::string &root)
 {
 	std::string new_one = root + path;
-	DIR* dir = opendir(new_one.c_str());
+	DIR *dir = opendir(new_one.c_str());
 	if (!dir)
 		return HttpResponse(HttpResponse::INTERNAL_SERVER_ERROR);
-	std::string body = "<html><body><h1>Index of " + root +  path + "</h1><ul>";
-	struct dirent* entry;
+	std::string body = "<html><body><h1>Index of " + root + path + "</h1><ul>";
+	struct dirent *entry;
 	while ((entry = readdir(dir)) != NULL)
 	{
 		std::string name = entry->d_name;
-		if (name == "." || name == "..") continue;
+		if (name == "." || name == "..")
+			continue;
 		body += "<li><a href=\"" + path + "/" + name + "\">" + name + "</a></li>";
 	}
 	body += "</ul></body></html>";
@@ -221,20 +222,44 @@ HttpResponse	RequestHandler::GenerateDirRequest(std::string& path, std::string& 
 	return res;
 }
 
-bool sameFile(const std::string& path1, const std::string& path2)
+bool sameFile(const std::string &path1, const std::string &path2)
 {
-    struct stat s1;
-    struct stat s2;
+	struct stat s1;
+	struct stat s2;
 
-	std::cout << path1 << "\n" << path2;
-    if (stat(path1.c_str(), &s1) != 0)
-        return false;
-    if (stat(path2.c_str(), &s2) != 0)
-        return false;
+	std::cout << path1 << "\n"
+			  << path2;
+	if (stat(path1.c_str(), &s1) != 0)
+		return false;
+	if (stat(path2.c_str(), &s2) != 0)
+		return false;
 
-    return (s1.st_ino == s2.st_ino) && (s1.st_dev == s2.st_dev);
+	return (s1.st_ino == s2.st_ino) && (s1.st_dev == s2.st_dev);
 }
 
+HttpResponse RequestHandler::generateErrorResponse(HttpResponse::StatusCode status_code,
+												   const std::string &default_message,
+												   globale &g)
+{
+	std::string error_path = g.root + g.error_page[status_code];
+	std::ifstream error_file(error_path.c_str(), std::ios::binary);
+	HttpResponse response(status_code);
+
+	if (error_file.is_open())
+	{
+		std::string error_content((std::istreambuf_iterator<char>(error_file)),
+								  std::istreambuf_iterator<char>());
+		error_file.close();
+		response.setHeader("Content-Type", "text/html");
+		response.setBody(error_content);
+	}
+	else
+	{
+		response.setBody(default_message);
+	}
+
+	return response;
+}
 
 HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 {
@@ -278,8 +303,8 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 		{
 			struct stat path;
 			std::string root = request.conf.location[i].root.empty() ? g.root
-				: request.conf.location[i].root;
-			std::string new_path = root + safe_path; 
+																	 : request.conf.location[i].root;
+			std::string new_path = root + safe_path;
 			if (safe_path != "/" && (stat(new_path.c_str(), &path) == 0) && S_ISDIR(path.st_mode))
 			{
 				if (request.conf.location[i].autoindex)
@@ -288,8 +313,8 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 					return HttpResponse(HttpResponse::FORBIDDEN);
 			}
 			std::string index = request.conf.location[i].index.empty()
-				? g.index
-				: request.conf.location[i].index;
+									? g.index
+									: request.conf.location[i].index;
 			file_path = root + "/" + index;
 			break;
 		}
@@ -315,7 +340,25 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 			return handleCGI(request, safe_path, ext, g);
 		}
 	}
-
+	// check if filepath is a directory
+	struct stat path_stat;
+	if (stat(file_path.c_str(), &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
+	{
+		// check for index file in the directory
+		std::string index_path = file_path + "/" + g.index;
+		if (stat(index_path.c_str(), &path_stat) == 0 && S_ISREG(path_stat.st_mode))
+		{
+			file_path = index_path;
+		}
+		else if (g.autoindex)
+		{
+			return GenerateDirRequest(safe_path, g.root);
+		}
+		else
+		{
+			return generateErrorResponse(HttpResponse::FORBIDDEN, "<html><body><h1>403 Forbidden</h1><p>Directory listing denied.</p></body></html>", g);
+		}
+	}
 	int fd = open(file_path.c_str(), O_RDONLY);
 	if (fd != -1)
 	{
@@ -329,33 +372,19 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 
 			response.file_fd = fd;
 			response.file_size = file_stat.st_size;
-	//		if (file_stat.st_size > MB(1))// && request.headers.find("Range") != request.headers.end())
-	//		{
-	//			response.setStatusCode(HttpResponse::PARTIAL_CONTENT);
-	//			response.setHeader("Content-Range", "bytes 0-" + size_to_string(file_stat.st_size - 1) + "/" + size_to_string(file_stat.st_size));
-	//		}
+			//		if (file_stat.st_size > MB(1))// && request.headers.find("Range") != request.headers.end())
+			//		{
+			//			response.setStatusCode(HttpResponse::PARTIAL_CONTENT);
+			//			response.setHeader("Content-Range", "bytes 0-" + size_to_string(file_stat.st_size - 1) + "/" + size_to_string(file_stat.st_size));
+			//		}
 			return response;
 		}
 		close(fd);
 	}
 
-	// 404 error handling
-	std::string not_found_path = g.root + g.error_page[404];
-	std::ifstream error_file(not_found_path.c_str(), std::ios::binary);
-	HttpResponse response(HttpResponse::NOT_FOUND);
-
-	if (error_file.is_open())
-	{
-		std::string error_content((std::istreambuf_iterator<char>(error_file)),
-								  std::istreambuf_iterator<char>());
-		error_file.close();
-		response.setHeader("Content-Type", "text/html");
-		response.setBody(error_content);
-	}
-	else
-	{
-		response.setBody("<html><body><h1>404 Not Found</h1><p>File: " + request.path + "</p></body></html>");
-	}
+	HttpResponse response = generateErrorResponse(HttpResponse::NOT_FOUND,
+												  "<html><body><h1>404 Not Found</h1><p>The requested resource was not found on this server.</p></body></html>",
+												  g);
 
 	return response;
 }
