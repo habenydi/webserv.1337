@@ -49,14 +49,32 @@ bool	httpPars::splitHeader(std::string& result)
 		}
 		request.headers[key] = value;
 	}
+	if (request.cookies.empty()
+		|| request.cookies.find("session_id") == request.cookies.end()
+		|| request.cookies["session_id"].empty())
+	{
+		std::stringstream ss;
+		ss << "session_id";
+		std::string	id = GenerateId();
+		std::cout << id << std::endl;
+		request.cookies[ss.str()] = id;
+		sid[id].last_access = std::time(NULL);
+		sid[id].logged_in = false;
+		sid[id].email = "";
+	}
 	return true;
 }
 
-std::string	GenerateId()
+std::string GenerateId()
 {
+	static int counter;
+	// Re-seed every time with time + counter for more randomness
+	std::srand(std::time(NULL) + ++counter + std::clock());
+	
 	std::stringstream ss;
-	ss << std::time(NULL) << std::rand();
-	return (ss.str());
+	ss << std::time(NULL) << std::rand() << std::rand() << counter;
+	std::cout << "\n\n\n---->" << ss.str() << "\n"; 
+	return ss.str();
 }
 
 void	httpPars::StoreCookies(std::string& line)
@@ -71,17 +89,10 @@ void	httpPars::StoreCookies(std::string& line)
 		std::string	key = line.substr(start, equal - start);
 		std::string value = line.substr(equal + 1, semicolon - equal - 1);
 		request.cookies[key] = value;
+		std::cout << key << "<--->" << value << std::endl;
 		start = semicolon + 1;
 		while (start < line.size() && (line[start] == ' ' || line[start] == '\t'))
 			start++;
-	}
-	if (request.cookies.find("session_id") == request.cookies.end())
-	{
-		std::string	id = GenerateId();
-		request.cookies["session_id"] = id;
-		sid[id].last_access = std::time(NULL);
-		sid[id].logged_in = false;
-		sid[id].email = "";
 	}
 }
 
@@ -117,6 +128,10 @@ void httpPars::FindFilename(HttpRequest& request)
 
 bool	httpPars::RequestPars(std::string& buffer, globale& configue)
 {
+	request.cookies.clear();
+	std::cout << buffer << std::endl;
+	request.cookies["session_id"].clear();
+	std::cout << buffer << std::endl;
 	this->request.conf = configue;
 	request.IsPOST = false;
 	size_t header_end = buffer.find("\r\n\r\n");
