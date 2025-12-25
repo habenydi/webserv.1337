@@ -171,9 +171,9 @@ std::string getFileExtension(std::string file)
 // Handle CGI script execution
 HttpResponse RequestHandler::handleCGI(HttpRequest &request, const std::string &safe_path, const std::string &ext, globale &g)
 {
-	size_t last_slash = safe_path.find_last_of('/');
+	size_t last_slash = safe_path.find_last_of('/'); // Get filename from path ex : hhtps://example.com/cgi-bin/script.cgi --> script.cgi
 	std::string filename;
-	if (last_slash != std::string::npos)
+	if (last_slash != std::string::npos) // found slash
 		filename = safe_path.substr(last_slash + 1);
 	else
 		filename = safe_path;
@@ -287,8 +287,8 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 	globale g = request.conf;
 	std::string index = "/" + g.index;
 	std::string file_path = "";
-	std::map<std::string, std::string>::const_iterator it = request.conf.redirection.begin();
-	for (; it != request.conf.redirection.end(); it++)
+	std::map<std::string, std::string>::const_iterator it = request.conf.redirection.begin(); // Iterate through redirections
+	for (; it != request.conf.redirection.end(); it++) // 
 	{
 		if (request.path == it->first)
 		{
@@ -297,6 +297,7 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 			return response;
 		}
 	}
+	// Check for location-specific settings
 	for (size_t i = 0; i < request.conf.location.size(); i++)
 	{
 		if (safe_path == request.conf.location[i].path)
@@ -319,11 +320,12 @@ HttpResponse RequestHandler::handleGetRequest(HttpRequest &request)
 			break;
 		}
 	}
+	// If no location-specific file path, use default
 	if (file_path.empty())
 	{
 		if (safe_path == "/")
 			safe_path = index;
-		file_path = g.root + safe_path;
+		file_path = g.root + safe_path; // Final file path to serve
 	}
 	std::cout << "\n\n\n\n\n\n\n\n " << safe_path << "\n\n\n\n\n\n\n";
 	std::string ext = getFileExtension(safe_path);
