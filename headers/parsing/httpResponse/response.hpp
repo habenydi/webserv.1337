@@ -27,7 +27,7 @@ public:
     void clearHeaders();
     void setRawBody(const std::string &body);
     std::string toString() const;
-    std::string toStringHeadersOnly(HttpRequest& request) const;
+    std::string toStringHeadersOnly(HttpRequest &request) const;
 
     int file_fd;
     size_t file_size;
@@ -52,9 +52,12 @@ private:
     static std::string getContentType(const std::string &file_path, globale &conf);
     static HttpResponse handleCGI(HttpRequest &request, const std::string &safe_path, const std::string &ext, globale &g);
     static HttpResponse handleDeleteRequest(HttpRequest &request);
-    static HttpResponse	HandleCookieFile(HttpRequest& request);
-    static HttpResponse	GenerateDirRequest(std::string& path, std::string& root);
+    static HttpResponse HandleCookieFile(HttpRequest &request);
+    static HttpResponse GenerateDirRequest(std::string &path, std::string &root);
+    static HttpResponse generateErrorResponse(HttpResponse::StatusCode status_code,
+                                              const std::string &default_message,
+                                              globale &g);
 };
 
 Response generateResponse(HttpRequest &request);
-std::string	GenerateId();
+std::string GenerateId();
