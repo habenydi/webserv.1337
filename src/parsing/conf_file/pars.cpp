@@ -249,6 +249,8 @@ void	pars::defaultConfigue(globale& data)
 		data.error_page[404] = "./www/errors/404.html";
 	if (data.error_page.find(500) == data.error_page.end())
 		data.error_page[500] = "./www/errors/500.html";
+	if (data.error_page.find(403) == data.error_page.end())
+		data.error_page[403] = "./www/errors/403.html";
 	if (data.mimetype.empty())
 	{
 		data.mimetype["html"] = "text/html";
